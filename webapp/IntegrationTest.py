@@ -1,13 +1,15 @@
 import unittest
-from webapp.app import app
+from webapp import app
 import os
 
 class TestHealthz(unittest.TestCase):
 
-    def test_health_check():
-        app = webapp.test_client()
-        response = app.get('/healthz')
-        assertEqual(response.status_code, 200)
+    def test_health_check(self):
+        client = app.test_client()
+        response = client.get('/healthz')
+        self.assertEqual(response.status_code, 200)
+        print("Received response code: ", response.status_code, " from /healthz endpoint!")
+        print("=========TEST PASSED!==========")
 
 if __name__ == '__main__':
     unittest.main()
