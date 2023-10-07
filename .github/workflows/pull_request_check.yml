@@ -6,7 +6,6 @@ on:
       - main
 
 jobs: 
-  pull-request-status-check:
     build:
       runs-on: ubuntu-latest
 
@@ -32,17 +31,17 @@ jobs:
 
         - name: Install dependencies
           run: |
-          pwd
-          cd webapp
-          ls -la
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+            pwd
+            cd webapp
+            ls -la
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
 
         - name: Run tests (PostgreSQL)
           run: |
-          ls -la
-          cd webapp
-          python -m unittest discover tests/ -v -p 'IntegrationTest.py'
-          env:
-            DATABASE_TYPE: postgres
+            ls -la
+            cd webapp
+            python IntegrationTest.py
+            env:
+              DATABASE_TYPE: postgres
 
