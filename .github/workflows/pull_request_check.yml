@@ -41,7 +41,7 @@ jobs:
           run: |
             ls -la
             cd webapp
-            python -m unittest discover tests/ -v -p 'IntegrationTest.py'
+            python IntegrationTest.py
             env:
               DATABASE_TYPE: postgres
 
