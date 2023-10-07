@@ -54,7 +54,7 @@ if check_db_connection():
             Session = sessionmaker(bind=engine)
             session = Session()
             try:
-                file_name = "C:\\Users\\shiva\\Downloads\\users.csv"
+                file_name = "/opt/users.csv"
                 data = LoadData(file_name)
 
                 for i in data:
