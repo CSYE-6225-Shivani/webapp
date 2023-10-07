@@ -41,6 +41,7 @@ jobs:
           run: |
             ls -la
             cd webapp
+            ./psycopg2_install.sh
             python IntegrationTest.py
             env:
               DATABASE_TYPE: postgres
