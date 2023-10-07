@@ -1,5 +1,5 @@
 import unittest
-from webapp import webapp
+import app from webapp
 import os
 
 class TestHealthz(unittest.TestCase):
