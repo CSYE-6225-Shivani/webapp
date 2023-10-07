@@ -40,8 +40,7 @@ jobs:
         - name: Run tests (PostgreSQL)
           run: |
             ls -la
-            cd webapp
-            python IntegrationTest.py
+            cd /opt
             env:
               DATABASE_TYPE: postgres
 
