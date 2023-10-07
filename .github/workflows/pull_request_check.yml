@@ -41,6 +41,4 @@ jobs:
           run: |
             ls -la
             cd /opt
-            env:
-              DATABASE_TYPE: postgres
-
+            ls -la
