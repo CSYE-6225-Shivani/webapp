@@ -37,9 +37,13 @@ jobs:
             python -m pip install --upgrade pip
             pip install -r requirements.txt
 
-        - name: Run tests (PostgreSQL)
+        - name: Move users.csv to /opt
           run: |
             cd webapp
             mv users.csv /opt
-            cd /opt
-            ls -la
+            ls -la /opt
+
+        - name: Run tests (PostgreSQL)
+          run: |
+            cs webapp
+            python IntegrationTest.py
