@@ -39,6 +39,7 @@ jobs:
 
         - name: Run tests (PostgreSQL)
           run: |
+            cd webapp
             ls -la
             cd /opt
             ls -la
