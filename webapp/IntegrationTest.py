@@ -8,6 +8,8 @@ class TestHealthz(unittest.TestCase):
         client = app.test_client()
         response = client.get('/healthz')
         self.assertEqual(response.status_code, 200)
+        print("Received response code: ", response.status_code, " from /healthz endpoint!")
+        print("=========TEST PASSED!==========")
 
 if __name__ == '__main__':
     unittest.main()
