@@ -1,0 +1,48 @@
+name: Pull Request Integration Test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs: 
+  pull-request-status-check:
+    build:
+      runs-on: ubuntu-latest
+
+      services:
+        postgres:
+          image: postgres:14
+          env:
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: 1234
+            POSTGRES_DB: webapp
+          ports:
+            - 5432:5432
+          options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Set up Python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 3.11
+
+        - name: Install dependencies
+          run: |
+          pwd
+          cd webapp
+          ls -la
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+        - name: Run tests (PostgreSQL)
+          run: |
+          ls -la
+          cd webapp
+          python -m unittest discover tests/ -v -p 'IntegrationTest.py'
+          env:
+            DATABASE_TYPE: postgres
+

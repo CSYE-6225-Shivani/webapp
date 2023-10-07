@@ -1,0 +1,7 @@
+Flask
+numpy
+sqlalchemy
+sqlalchemy_utils
+sqlalchemy.orm
+flask_bcrypt
+flask_httpauth
