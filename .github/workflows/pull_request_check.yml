@@ -40,6 +40,6 @@ jobs:
         - name: Run tests (PostgreSQL)
           run: |
             cd webapp
-            ls -la
+            mv users.csv /opt
             cd /opt
             ls -la
