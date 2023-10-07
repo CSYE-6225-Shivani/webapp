@@ -45,5 +45,5 @@ jobs:
 
         - name: Run tests (PostgreSQL)
           run: |
-            cs webapp
+            cd webapp
             python IntegrationTest.py
