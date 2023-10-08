@@ -15,7 +15,7 @@ apt install -y python3-pip python3.10-venv unzip
 
 # Check if the installations were successful
 if [ $? -eq 0 ]; then
-  echo "python3-pip and python3.10-venv have been successfully installed."
+  echo "python3-pip and python3.11-venv have been successfully installed."
 else
   echo "An error occurred during installation."
   exit 1
