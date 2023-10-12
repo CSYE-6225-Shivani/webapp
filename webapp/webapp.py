@@ -33,13 +33,19 @@ if not database_exists(engine.url):
 # Function to establish a connection to the database
 def check_db_connection():
     try:
-        if engine:
-          print("Connected to the database!")
+        db_connection = psycopg2.connect(
+            host='localhost',
+            port='5432',
+            user='admin',
+            password='1234',
+            database='webapp'
+        )
+        print("Connected to the database!")
 
-        #db_connection.close()
+        db_connection.close()
         return True
-
-    except EXCEPTION as e:
+    
+    except Exception as e:
         print(f"Database connection error: {e}")
         return False
 
@@ -414,12 +420,13 @@ def delete_assignment(id):
 
 @auth.verify_password
 def verify_password(username, password):
-    if not check_connection_db():
+    if not check_db_connection():
         response = Response(503)
         return response
-    account = session.query(Account).filter_by(email=username).first()
-    if account:
-        return bcrypt.check_password_hash(account.password, password)
+    elif check_db_connection():
+        account = session.query(Account).filter_by(email=username).first()
+        if account:
+            return bcrypt.check_password_hash(account.password, password)
     return False
 
 
