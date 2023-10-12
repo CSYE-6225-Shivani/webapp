@@ -414,6 +414,9 @@ def delete_assignment(id):
 
 @auth.verify_password
 def verify_password(username, password):
+    if not check_connection_db():
+        response = Response(503)
+        return response
     account = session.query(Account).filter_by(email=username).first()
     if account:
         return bcrypt.check_password_hash(account.password, password)
