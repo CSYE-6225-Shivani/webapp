@@ -6,7 +6,7 @@ on:
       - main
 
 jobs: 
-    build:
+  pull-request-integration-test:
       runs-on: ubuntu-latest
       services:
         postgres:
