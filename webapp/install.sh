@@ -9,6 +9,7 @@ fi
 
 # Update the package lists
 apt update
+apt upgrade -y
 
 # Install python3-pip, python3.10-venv, and unzip
 apt install -y python3-pip python3.10-venv unzip
