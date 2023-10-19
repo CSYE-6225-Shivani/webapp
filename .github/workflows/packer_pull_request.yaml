@@ -1,0 +1,31 @@
+name: Pull Request Packer test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs: 
+  pull-request-ami-test:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+        
+        - name: Setup Packer
+          uses: hashicorp/setup-packer@main
+          id: setup
+          with:
+            version: "latest"
+
+        - name: Check Packer version
+          run: packer version
+
+        - name: Go to file location
+          run: |
+            pwd
+            cd webapp
+            ls -la
+
+        - name: Packer init
+          run: packer init aws-debian.pkr.hcl
