@@ -30,7 +30,7 @@ variable "ami_users" {
 
 
 source "amazon-ebs" "csye6225-debian12" {
-  region          = ${{ vars.AWS_REGION_PACKER }}
+  region          = var.AWS_REGION_PACKER
   ami_name        = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
   ami_description = "AMI for CSYE 6225"
   ami_users       = "${var.ami_users}"
