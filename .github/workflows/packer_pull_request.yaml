@@ -29,4 +29,6 @@ jobs:
             ls -la
 
         - name: Packer init
-          run: packer init ./aws-debian.pkr.hcl
+          run: |
+            pwd
+            packer init ./aws-debian.pkr.hcl
