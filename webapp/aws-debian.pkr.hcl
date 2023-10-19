@@ -7,6 +7,8 @@ packer {
   }
 }
 
+# Defining variable types and default values
+
 variable "aws_region" {
   type    = string
   default = "us-west-1"
@@ -56,6 +58,8 @@ variable "max_attempts" {
   type    = number
   default = 50
 }
+
+# Defining top-level reusable builder configuration block
 source "amazon-ebs" "csye6225-debian12" {
   region          = "${var.aws_region}"
   ami_name        = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
@@ -84,6 +88,7 @@ source "amazon-ebs" "csye6225-debian12" {
   }
 }
 
+# Defining build level source block to set specific source fields
 build {
   sources = [
     "source.amazon-ebs.csye6225-debian12",
