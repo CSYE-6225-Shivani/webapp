@@ -56,7 +56,7 @@ jobs:
             ls -la
             expected_output="The configuration is valid."
             output=$(packer validate ./aws-debian.pkr.hcl)
-            if ["$output" != expected_output]; then
+            if [[ "$output" != "$expected_output" ]]; then
               echo "Packer validation failed. Found some errors:"
               echo "$output"
               exit 1
