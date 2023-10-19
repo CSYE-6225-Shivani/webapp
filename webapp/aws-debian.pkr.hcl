@@ -32,7 +32,30 @@ variable "ami_users" {
   default = ["359865058304"]
 }
 
+variable "instance_type" {
+  type    = string
+  default = "t2.micro"
+}
 
+variable "volume_size" {
+  type    = number
+  default = 8
+}
+
+variable "volume_type" {
+  type    = string
+  default = "gp2"
+}
+
+variable "delay_seconds" {
+  type    = number
+  default = 120
+}
+
+variable "max_attempts" {
+  type    = number
+  default = 50
+}
 source "amazon-ebs" "csye6225-debian12" {
   region          = "${var.aws_region}"
   ami_name        = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
@@ -42,7 +65,12 @@ source "amazon-ebs" "csye6225-debian12" {
     "us-west-1",
   ]
 
-  instance_type = "t2.micro"
+  aws_polling {
+     delay_seconds = "${var.delay_seconds}"
+     max_attempts  = "${var.max_attempts}"
+  }
+
+  instance_type = "${var.instance_type}"
   source_ami    = "${var.source_ami}"
   ssh_username  = "${var.ssh_username}"
   subnet_id     = "${var.subnet_id}"
@@ -51,8 +79,8 @@ source "amazon-ebs" "csye6225-debian12" {
   launch_block_device_mappings {
     delete_on_termination = true
     device_name           = "/dev/xvda"
-    volume_size           = 8
-    volume_type           = "gp2"
+    volume_size           = "${var.volume_size}"
+    volume_type           = "${var.volume_type}"
   }
 }
 
