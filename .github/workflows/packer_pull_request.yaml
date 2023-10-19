@@ -32,4 +32,6 @@ jobs:
           run: |
             pwd
             ls -la
+            cd webapp
+            ls -la
             packer init ./aws-debian.pkr.hcl
