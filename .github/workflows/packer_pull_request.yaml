@@ -31,4 +31,5 @@ jobs:
         - name: Packer init
           run: |
             pwd
+            ls -la
             packer init ./aws-debian.pkr.hcl
