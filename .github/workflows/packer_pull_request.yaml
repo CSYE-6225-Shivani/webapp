@@ -54,4 +54,4 @@ jobs:
             ls -la
             cd webapp
             ls -la
-            packer validate -var "aws_region=${{ vars.AWS_REGION_PACKER" }} ./aws-debian.pkr.hcl
+            packer validate -var "aws_region=${{ vars.AWS_REGION_PACKER }}" ./aws-debian.pkr.hcl
