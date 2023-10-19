@@ -39,6 +39,9 @@ jobs:
           run: |
             pwd
             ls -la
+            cd webapp
+            ls -la
+            packer version
             output=$(packer fmt ./aws-debian.pkr.hcl)
             if [ -n "$output" ]; then
               echo "Packer file has been modified. Found issues with the formatting:"
