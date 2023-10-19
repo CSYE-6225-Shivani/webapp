@@ -54,11 +54,4 @@ jobs:
             ls -la
             cd webapp
             ls -la
-            expected_output="The configuration is valid."
-            output=$(packer validate ./aws-debian.pkr.hcl)
-            if [ "$output" != "$expected_output" ]; then
-              echo "Packer validation failed. Found some errors:"
-              echo "$output"
-              exit 1
-            fi
-            
+            packer validate ./aws-debian.pkr.hcl
