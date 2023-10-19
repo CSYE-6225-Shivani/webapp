@@ -66,8 +66,8 @@ source "amazon-ebs" "csye6225-debian12" {
   ]
 
   aws_polling {
-     delay_seconds = "${var.delay_seconds}"
-     max_attempts  = "${var.max_attempts}"
+    delay_seconds = "${var.delay_seconds}"
+    max_attempts  = "${var.max_attempts}"
   }
 
   instance_type = "${var.instance_type}"
