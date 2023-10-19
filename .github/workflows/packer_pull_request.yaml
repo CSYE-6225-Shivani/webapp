@@ -35,3 +35,12 @@ jobs:
             cd webapp
             ls -la
             packer init ./aws-debian.pkr.hcl
+        - name: Check hcl format
+          run: |
+            output = $(packer fmt ./aws-debian.pkr.hcl)
+            if [ -n $output ]; then
+              echo "Packer file has been modified. Found issues with the formatting:"
+              echo "$output"
+              exit 1
+            fi
+            
