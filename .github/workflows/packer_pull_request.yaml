@@ -11,6 +11,8 @@ jobs:
       steps:
         - name: Checkout code
           uses: actions/checkout@v4
+          with:
+            ref: assignment_5_adding_packer_code
         
         - name: Setup Packer
           uses: hashicorp/setup-packer@main
