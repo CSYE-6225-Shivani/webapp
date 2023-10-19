@@ -8,8 +8,6 @@ on:
 jobs: 
   pull-request-ami-test:
       runs-on: ubuntu-latest
-      env:
-        AWS_REGION_PACKER: ${{ vars.AWS_REGION_PACKER }}
       steps:
         - name: Checkout code
           uses: actions/checkout@v4
