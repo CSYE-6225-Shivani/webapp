@@ -92,5 +92,6 @@ jobs:
           run: |
             pwd
             ls -la
+            mv webapp.zip webapp/
             cd webapp
             packer build -var "aws_region=${{ vars.AWS_REGION_PACKER }}" -var "source_ami=${{ vars.SOURCE_AMI_PACKER }}" -var "ssh_username=${{ vars.SSH_USERNAME_PACKER }}" -var "subnet_id=${{ vars.SUBNET_ID_PACKER }}" -var "ami_users=${{ vars.AMI_USERS_PACKER }}" -var "instance_type=${{ vars.INSTANCE_TYPE_PACKER }}" -var "volume_size=${{ vars.VOLUME_SIZE_PACKER }}" -var "volume_type=${{ vars.VOLUME_TYPE_PACKER }}" -var "delay_seconds=${{ vars.DELAY_SECONDS_PACKER }}" -var "max_attempts=${{ vars.MAX_ATTEMPTS_PACKER }}" ./aws-debian.pkr.hcl
