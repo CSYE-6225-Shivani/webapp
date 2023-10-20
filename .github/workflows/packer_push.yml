@@ -57,6 +57,11 @@ jobs:
           run: |
             pwd
             ls -la
+
+        - name: Build webapp artifacts
+          run: |
+            pwd
+            ls -la
             
         - name: Initialize Packer Template
           uses: hashicorp/packer-github-actions@master
