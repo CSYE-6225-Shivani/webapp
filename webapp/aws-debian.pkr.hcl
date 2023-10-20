@@ -105,7 +105,7 @@ build {
     execute_command = "sudo -E -S sh '{{.Path}}'"
   }
 
-provisioner "shell" {
+  provisioner "shell" {
     environment_vars = [
       "DEBIAN_FRONTEND=noninteractive",
       "CHECKPOINT_DISABLE=1"
