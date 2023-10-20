@@ -20,6 +20,11 @@ jobs:
             aws-region: us-west-1
 
            # Initialize Packer templates
+        - name: Check location of files
+          run: |
+            pwd
+            ls -la
+            
         - name: Initialize Packer Template
           uses: hashicorp/packer-github-actions@master
           with:
