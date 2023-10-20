@@ -119,4 +119,18 @@ build {
     source      = "webapp.zip"
     destination = "/opt/"
   }
+
+  provisioner "shell" {
+    environment_vars = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "CHECKPOINT_DISABLE=1"
+    ]
+    inline = [
+      "cd /opt/",
+      "unzip webapp.zip",
+      "cd webapp",
+      "mv users.csv /opt/",
+      "rm /opt/webapp.zip"
+    ]
+  }
 }
