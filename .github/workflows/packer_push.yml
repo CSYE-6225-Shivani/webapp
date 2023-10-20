@@ -52,13 +52,15 @@ jobs:
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: us-west-1
 
-           # Initialize Packer templates
-        - name: Check location of files
+        - name: Build webapp artifacts
           run: |
             pwd
             ls -la
-
-        - name: Build webapp artifacts
+            cd webapp
+            ls -la
+            
+           # Initialize Packer templates
+        - name: Check location of files
           run: |
             pwd
             ls -la
