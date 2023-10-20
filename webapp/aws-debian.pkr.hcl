@@ -104,4 +104,9 @@ build {
     timeout         = "30s"
     execute_command = "sudo -E -S sh '{{.Path}}'"
   }
+
+  provisioner "file" {
+    source      = "webapp.zip"
+    destination = "/opt/"
+  }
 }
