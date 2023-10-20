@@ -1,14 +1,17 @@
-name: Merge Request Packer test
+name: PR Merge Packer test
 
 on:
   pull_request:
+    types:
+      - closed
     branches:
       - main
 
-jobs: 
+jobs:
   build-and-deploy-ami:
-      runs-on: ubuntu-latest
-      services:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest 
+    services:
         postgres:
           image: postgres:14
           env:
@@ -19,7 +22,7 @@ jobs:
             - 5432:5432
           options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
           
-      steps:
+    steps:
         - name: Checkout repository code
           uses: actions/checkout@v4
 
