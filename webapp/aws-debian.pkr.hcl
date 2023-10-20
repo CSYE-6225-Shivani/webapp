@@ -105,6 +105,16 @@ build {
     execute_command = "sudo -E -S sh '{{.Path}}'"
   }
 
+provisioner "shell" {
+    environment_vars = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "CHECKPOINT_DISABLE=1"
+    ]
+    inline = [
+      "sudo chown -R ${var.ssh_username}:${var.ssh_username} /opt/"
+    ]
+  }
+
   provisioner "file" {
     source      = "webapp.zip"
     destination = "/opt/"
