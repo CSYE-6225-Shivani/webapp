@@ -27,4 +27,21 @@ jobs:
           uses: actions/setup-python@v2
           with:
             python-version: 3.11
-        
+        - name: Install dependencies
+          run: |
+            cd webapp
+            ls -la
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+
+        - name: Move users.csv to /opt
+          run: |
+            cd webapp
+            mv users.csv /opt
+            ls -la /opt
+
+        - name: Run tests (PostgreSQL)
+          run: |
+            cd webapp
+            ls -la
+            python IntegrationTest.py
