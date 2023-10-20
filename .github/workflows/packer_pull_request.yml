@@ -60,6 +60,7 @@ jobs:
             cd ..
             ls -la
             zip -r webapp.zip webapp
+            mv webapp.zip webapp/
             ls -la
     
         - name: Validate packer file
