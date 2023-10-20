@@ -58,6 +58,7 @@ jobs:
             ls -la
             cd webapp
             ls -la
+            rm -rf __pycache__
             
            # Initialize Packer templates
         - name: Check location of files
