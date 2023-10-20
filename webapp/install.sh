@@ -73,31 +73,45 @@ else
 fi
 
 # Install Python packages to run webapp
-packages=(
-    python3-flask
-    python3-numpy
-    python3-sqlalchemy
-    python3-sqlalchemy-utils
-    python3-psycopg2
-    python3-flask-bcrypt
-    python3-flask-httpauth
-)
-
-# Function to handle errors
 handle_error() {
     echo "Error: $1"
     exit 1
 }
 
-# Loop through the package list and install each one
-for package in "${packages[@]}"; do
-    sudo apt-get install -y "$package"
-    
-    # Check the exit status of the apt-get command
-    if [ $? -ne 0 ]; then
-        handle_error "Failed to install $package"
-    fi
-done
+# Install individual packages
+sudo apt-get install -y python3-flask
+if [ $? -ne 0 ]; then
+    handle_error "Failed to install python3-flask"
+fi
+
+sudo apt-get install -y python3-numpy
+if [ $? -ne 0 ]; then
+    handle_error "Failed to install python3-numpy"
+fi
+
+sudo apt-get install -y python3-sqlalchemy
+if [ $? -ne 0 ]; then
+    handle_error "Failed to install python3-sqlalchemy"
+fi
+
+sudo apt-get install -y python3-sqlalchemy-utils
+if [ $? -ne 0 ]; then
+    handle_error "Failed to install python3-sqlalchemy-utils"
+fi
+
+sudo apt-get install -y python3-psycopg2
+if [ $? -ne 0 ]; then
+    handle_error "Failed to install python3-psycopg2"
+fi
+
+sudo apt-get install -y python3-flask-bcrypt
+if [ $? -ne 0 ]; then
+    handle_error "Failed to install python3-flask-bcrypt"
+fi
+
+sudo apt-get install -y python3-flask-httpauth
+if [ $? -ne 0 ]; then
+    handle_error "Failed to install python3-flask-httpauth"
+fi
 
 echo "Packages installation completed successfully."
-
