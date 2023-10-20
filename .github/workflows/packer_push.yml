@@ -20,17 +20,17 @@ jobs:
           options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
           
       steps:
-        - name: Checkout code
+        - name: Checkout repository code
           uses: actions/checkout@v4
 
         - name: Set up Python
           uses: actions/setup-python@v2
           with:
             python-version: 3.11
+        
         - name: Install dependencies
           run: |
             cd webapp
-            ls -la
             python -m pip install --upgrade pip
             pip install -r requirements.txt
 
@@ -38,10 +38,31 @@ jobs:
           run: |
             cd webapp
             mv users.csv /opt
-            ls -la /opt
-
+  
+         # Running integration test first
         - name: Run tests (PostgreSQL)
           run: |
             cd webapp
-            ls -la
             python IntegrationTest.py
+
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-west-1
+
+           # Initialize Packer templates
+        - name: Check location of files
+          run: |
+            pwd
+            ls -la
+            
+        - name: Initialize Packer Template
+          uses: hashicorp/packer-github-actions@master
+          with:
+            command: init
+            target: /home/runner/work/webapp/webapp/webapp/aws-debian.pkr.hcl
+
+        - name: Check packer version
+          run: packer version
