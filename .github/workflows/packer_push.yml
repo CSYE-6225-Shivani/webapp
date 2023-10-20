@@ -29,7 +29,7 @@ jobs:
           uses: hashicorp/packer-github-actions@master
           with:
             command: init
-            target: webapp/webapp/aws-debian.pkr.hcl
+            target: /home/runner/work/webapp/webapp/webapp/aws-debian.pkr.hcl
 
         - name: Check packer version
           run: packer version
