@@ -61,7 +61,7 @@ jobs:
             rm -rf __pycache__
             ls -la
             cd ..
-            tar -cvzf webapp
+            ls -la
             
            # Initialize Packer templates
         - name: Check location of files
