@@ -61,25 +61,43 @@ else
   exit 1
 fi
 
+# Start postgresql service
+sudo service postgresql start
 
-# Download the ngrok binary
-NGROK_URL="https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip"
-wget $NGROK_URL -O ngrok.zip
+# Check if postgresql service has started
+if [ $? -eq 0 ]; then
+  echo "Postgresql service has been started."
+else
+  echo "An error occurred while starting postgresql."
+  exit 1
+fi
 
-# Unzip the ngrok archive
-unzip ngrok.zip
+# Install Python packages to run webapp
+packages=(
+    python3-flask
+    python3-numpy
+    python3-sqlalchemy
+    python3-sqlalchemy-utils
+    python3-psycopg2
+    python3-flask-bcrypt
+    python3-flask-httpauth
+)
 
-# Move the ngrok binary to a directory in your PATH
-mv ngrok /usr/local/bin/
+# Function to handle errors
+handle_error() {
+    echo "Error: $1"
+    exit 1
+}
 
-# Set the executable permission
-chmod +x /usr/local/bin/ngrok
+# Loop through the package list and install each one
+for package in "${packages[@]}"; do
+    sudo apt-get install -y "$package"
+    
+    # Check the exit status of the apt-get command
+    if [ $? -ne 0 ]; then
+        handle_error "Failed to install $package"
+    fi
+done
 
-# Clean up by removing the downloaded zip file
-rm ngrok.zip
-
-# Print ngrok version information
-ngrok --version
-
-echo "ngrok has been successfully installed."
+echo "Packages installation completed successfully."
 
