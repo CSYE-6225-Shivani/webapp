@@ -48,6 +48,20 @@ jobs:
               echo "$output"
               exit 1
             fi
+
+        - name: Build webapp artifacts
+          run: |
+            pwd
+            ls -la
+            cd webapp
+            ls -la
+            rm -rf __pycache__
+            ls -la
+            cd ..
+            ls -la
+            zip -r webapp.zip webapp
+            ls -la
+    
         - name: Validate packer file
           run: |
             pwd
