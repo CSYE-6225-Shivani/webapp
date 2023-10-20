@@ -19,6 +19,11 @@ variable "source_ami" {
   default = "ami-071175b60c818694f" # Debian 12 (HVM)
 }
 
+variable "device_name" {
+  type    = string
+  default = "/dev/xvda"
+}
+
 variable "ssh_username" {
   type    = string
   default = "admin"
@@ -32,6 +37,12 @@ variable "subnet_id" {
 variable "ami_users" {
   type    = list(string)
   default = ["359865058304"]
+}
+
+variable "ami_regions" {
+  type    = list(string)
+  default = ["us-west-1"]
+
 }
 
 variable "instance_type" {
@@ -65,10 +76,7 @@ source "amazon-ebs" "csye6225-debian12" {
   ami_name        = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
   ami_description = "AMI for CSYE 6225"
   ami_users       = "${var.ami_users}"
-  ami_regions = [
-    "us-west-1",
-  ]
-
+  ami_regions     = "${var.ami_regions}"
   aws_polling {
     delay_seconds = "${var.delay_seconds}"
     max_attempts  = "${var.max_attempts}"
@@ -78,11 +86,10 @@ source "amazon-ebs" "csye6225-debian12" {
   source_ami    = "${var.source_ami}"
   ssh_username  = "${var.ssh_username}"
   subnet_id     = "${var.subnet_id}"
-  # vpc_id        = "${var.vpc_id}"
 
   launch_block_device_mappings {
     delete_on_termination = true
-    device_name           = "/dev/xvda"
+    device_name           = "${var.device_name}"
     volume_size           = "${var.volume_size}"
     volume_type           = "${var.volume_type}"
   }
