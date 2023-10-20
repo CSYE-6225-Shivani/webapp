@@ -62,6 +62,8 @@ jobs:
             ls -la
             cd ..
             ls -la
+            zip -r webapp.zip webapp
+            ls -la
             
            # Initialize Packer templates
         - name: Check location of files
