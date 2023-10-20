@@ -71,11 +71,22 @@ jobs:
             pwd
             ls -la
             
-        - name: Initialize Packer Template
-          uses: hashicorp/packer-github-actions@master
+        - name: Setup Packer
+          uses: hashicorp/setup-packer@main
+          id: setup
           with:
-            command: init
-            target: /home/runner/work/webapp/webapp/webapp/aws-debian.pkr.hcl
+            version: "latest"
+
+        - name: Check Packer version
+          run: packer version
+
+        - name: Packer init
+          run: |
+            pwd
+            ls -la
+            cd webapp
+            ls -la
+            packer init ./aws-debian.pkr.hcl
 
         - name: Build AMI
           run: |
