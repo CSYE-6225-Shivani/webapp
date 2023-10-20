@@ -37,7 +37,7 @@ jobs:
         - name: Move users.csv to /opt
           run: |
             cd webapp
-            mv users.csv /opt
+            cp users.csv /opt
   
          # Running integration test first
         - name: Run tests (PostgreSQL)
