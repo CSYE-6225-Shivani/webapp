@@ -139,5 +139,4 @@ build {
       "mv users.csv /opt/",
       "rm /opt/webapp.zip"
     ]
-  }
-}
+ 
