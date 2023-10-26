@@ -70,6 +70,16 @@ variable "max_attempts" {
   default = 50
 }
 
+variable "group" {
+  type    = string
+  default = "csye6225"
+}
+
+variable "user" {
+  type    = string
+  default = "csye6225"
+}
+
 # Defining top-level reusable builder configuration block
 source "amazon-ebs" "csye6225-debian12" {
   region          = "${var.aws_region}"
@@ -118,6 +128,8 @@ build {
       "CHECKPOINT_DISABLE=1"
     ]
     inline = [
+      "sudo groupadd ${var.group}",
+      "sudo useradd -s /bin/false -g ${var.group} -d /opt/ ${var.user}",
       "sudo chown -R ${var.ssh_username}:${var.ssh_username} /opt/"
     ]
   }
