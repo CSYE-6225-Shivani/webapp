@@ -1,0 +1,16 @@
+[Unit]
+Description=My CSYE6225 web application
+requires=cloud-final.service
+ConditionPathExists=/opt/webapp.properties
+After=network.target
+
+[Service]
+Type=simple
+User=csye6225
+Group=csye6225
+WorkingDirectory=/opt/webapp
+ExecStart=flask --app=webapp run --host=0.0.0.0
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
