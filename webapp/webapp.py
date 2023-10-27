@@ -7,14 +7,27 @@ from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from sqlalchemy.engine.reflection import Inspector
 import psycopg2
 import uuid
+import os
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
+from dotenv import load_dotenv
 
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 auth = HTTPBasicAuth()
 
+# Define the file path
+file_path = '/opt/webapp.properties'
+if os.path.exists(file_path):
+    load_dotenv(file_path)
+else:
+    load_dotenv()
+
+rds_hostname = os.getenv("RDS_HOSTNAME")
+rds_username = os.getenv("RDS_USERNAME")
+rds_password = os.getenv("RDS_PASSWORD")
+database_url = os.getenv("DATABASE_URL")
 
 # Function to apply bcrypt encryption
 def encrypt(password):
@@ -22,24 +35,18 @@ def encrypt(password):
     return encrypted_password
 
 # Create Database if it does not already exist
-engine = create_engine("postgresql://admin:1234@localhost:5432/webapp")
+engine = create_engine(database_url)
 if database_exists(engine.url):
-    print("Database already exist:", engine.url)
+    print("Database already exist!")
 if not database_exists(engine.url):
     create_database(engine.url)
-    print("Created Database: ", engine.url)
+    print("Created Database!")
 
 
 # Function to establish a connection to the database
 def check_db_connection():
     try:
-        db_connection = psycopg2.connect(
-            host='localhost',
-            port='5432',
-            user='admin',
-            password='1234',
-            database='webapp'
-        )
+        db_connection = psycopg2.connect(database_url)
         print("Connected to the database!")
 
         db_connection.close()
@@ -60,7 +67,9 @@ if check_db_connection():
             Session = sessionmaker(bind=engine)
             session = Session()
             try:
-                file_name = "/opt/users.csv"
+                file_name = "./users.csv"
+                if os.path.exists("/opt/users.csv"):
+                    file_name = "/opt/users.csv"
                 data = LoadData(file_name)
 
                 for i in data:

@@ -46,4 +46,5 @@ jobs:
           run: |
             cd webapp
             ls -la
+            export DATABASE_URL=${{ secrets.DATABASE_URL }}
             python IntegrationTest.py
