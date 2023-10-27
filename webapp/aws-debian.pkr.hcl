@@ -139,6 +139,11 @@ build {
     destination = "/opt/"
   }
 
+    provisioner "file" {
+    source      = "webapp.service"
+    destination = "/etc/systemd/system/"
+  }
+
   provisioner "shell" {
     environment_vars = [
       "DEBIAN_FRONTEND=noninteractive",
@@ -149,22 +154,7 @@ build {
       "unzip webapp.zip",
       "cd webapp",
       "mv users.csv /opt/",
-      "rm /opt/webapp.zip"
-    ]
-  }
-}
-
-  provisioner "file" {
-    source      = "webapp.service"
-    destination = "/etc/systemd/system/"
-  }
-
-    provisioner "shell" {
-    environment_vars = [
-      "DEBIAN_FRONTEND=noninteractive",
-      "CHECKPOINT_DISABLE=1"
-    ]
-    inline = [
+      "rm /opt/webapp.zip",
       "sudo systemctl enable webapp"
     ]
   }
