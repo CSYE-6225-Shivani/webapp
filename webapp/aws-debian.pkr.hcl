@@ -141,7 +141,7 @@ build {
 
   provisioner "file" {
     source      = "webapp.service"
-    destination = "/etc/systemd/system/"
+    destination = "/tmp/"
   }
 
   provisioner "shell" {
@@ -155,6 +155,7 @@ build {
       "cd webapp",
       "mv users.csv /opt/",
       "rm /opt/webapp.zip",
+      "sudo mv /tmp/webapp.service /etc/systemd/system/",
       "sudo systemctl enable webapp",
       "sudo systemctl start webapp"
     ]
