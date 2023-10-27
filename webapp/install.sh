@@ -64,4 +64,9 @@ if [ $? -ne 0 ]; then
     handle_error "Failed to install python3-flask-httpauth"
 fi
 
+sudo apt-get install -y python3-dotenv
+if [ $? -ne 0 ]; then
+    handle_error "Failed to install python3-dotenv"
+fi
+
 echo "Packages installation completed successfully."
