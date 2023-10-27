@@ -22,56 +22,6 @@ else
   exit 1
 fi
 
-# Install PostgreSQL (if not already installed)
-if ! command -v psql &> /dev/null; then
-  apt install -y postgresql
-fi
-
-# Check if PostgreSQL is running
-if ! systemctl is-active --quiet postgresql; then
-  echo "PostgreSQL is not running. Starting PostgreSQL..."
-  systemctl start postgresql
-fi
-
-# Check if PostgreSQL started successfully
-if ! systemctl is-active --quiet postgresql; then
-  echo "Failed to start PostgreSQL. Please check the PostgreSQL service status."
-  exit 1
-fi
-
-# Create PostgreSQL user
-sudo -u postgres psql -c "CREATE USER admin WITH PASSWORD '1234';"
-
-# Check if the user was created successfully
-if [ $? -eq 0 ]; then
-  echo "PostgreSQL user 'admin' has been created."
-else
-  echo "An error occurred while creating the PostgreSQL user."
-  exit 1
-fi
-
-# Grant superuser privileges to the PostgreSQL user
-sudo -u postgres psql -c "ALTER USER admin SUPERUSER;"
-
-# Check if superuser privileges were granted successfully
-if [ $? -eq 0 ]; then
-  echo "Superuser privileges have been granted to 'admin'."
-else
-  echo "An error occurred while granting superuser privileges."
-  exit 1
-fi
-
-# Start postgresql service
-sudo service postgresql start
-
-# Check if postgresql service has started
-if [ $? -eq 0 ]; then
-  echo "Postgresql service has been started."
-else
-  echo "An error occurred while starting postgresql."
-  exit 1
-fi
-
 # Install Python packages to run webapp
 handle_error() {
     echo "Error: $1"
