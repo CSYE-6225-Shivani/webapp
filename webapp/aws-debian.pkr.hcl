@@ -153,3 +153,19 @@ build {
     ]
   }
 }
+
+  provisioner "file" {
+    source      = "webapp.service"
+    destination = "/etc/systemd/system/"
+  }
+
+    provisioner "shell" {
+    environment_vars = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "CHECKPOINT_DISABLE=1"
+    ]
+    inline = [
+      "sudo systemctl enable webapp"
+    ]
+  }
+}
