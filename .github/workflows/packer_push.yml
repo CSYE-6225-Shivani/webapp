@@ -46,6 +46,7 @@ jobs:
         - name: Run tests (PostgreSQL)
           run: |
             cd webapp
+            export DATABASE_URL=${{ secrets.DATABASE_URL }}
             python IntegrationTest.py
 
         - name: Configure AWS Credentials
