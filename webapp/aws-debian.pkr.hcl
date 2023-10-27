@@ -156,8 +156,7 @@ build {
       "mv users.csv /opt/",
       "rm /opt/webapp.zip",
       "sudo mv /tmp/webapp.service /etc/systemd/system/",
-      "sudo systemctl enable webapp",
-      "sudo systemctl start webapp"
+      "sudo systemctl enable webapp"
     ]
   }
 }
