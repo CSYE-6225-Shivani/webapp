@@ -15,7 +15,7 @@ import logging
 
 # Enable logging for this webapp
 logging.basicConfig(filename="/opt/webapp.log", level=logging.INFO)
-logging.INFO('Testing LOG collection')
+logging.info('Testing LOG collection')
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
