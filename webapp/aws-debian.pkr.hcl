@@ -152,6 +152,7 @@ build {
     ]
     inline = [
       "cd /opt/",
+      "touch webapp.log",
       "unzip webapp.zip",
       "cd webapp",
       "mv users.csv /opt/",
