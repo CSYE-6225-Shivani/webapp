@@ -160,7 +160,8 @@ build {
       "mv amazon-cloudwatch-agent.json /opt/",
       "rm /opt/amazon-cloudwatch-agent.deb",
       "sudo mv /tmp/webapp.service /etc/systemd/system/",
-      "sudo systemctl enable webapp"
+      "sudo systemctl enable webapp",
+      "sudo rm -rf /opt/webapp/__pycache__/"
     ]
   }
 }
