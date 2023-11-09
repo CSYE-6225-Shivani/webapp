@@ -12,10 +12,31 @@ from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 from dotenv import load_dotenv
 import logging
+import json
 
-# Enable logging for this webapp
-logging.basicConfig(filename="/opt/webapp.log", level=logging.INFO)
-logging.info('Testing LOG collection')
+# Create a custom JSON formatter
+class JsonFormatter(logging.Formatter):
+    def format(self, record):
+        log_data = {
+            "timestamp": self.formatTime(record),
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "module": record.module,
+        }
+        return json.dumps(log_data)
+
+# Create a custom logger
+logger = logging.getLogger('webapp')
+logger.setLevel(logging.INFO)
+
+# Create a file handler and set the log level
+file_handler = logging.FileHandler("/opt/webapp.log")
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(JsonFormatter())
+
+# Add the file handler to the logger
+logger.addHandler(file_handler)
+
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -25,13 +46,22 @@ auth = HTTPBasicAuth()
 file_path = '/opt/webapp.properties'
 if os.path.exists(file_path):
     load_dotenv(file_path)
+    logger.info(f'Fetching database credentials from location: {file_path}')
 else:
     load_dotenv()
+    logger.info('Fetching database credentials from environment variables')
 
 rds_hostname = os.getenv("RDS_HOSTNAME")
 rds_username = os.getenv("RDS_USERNAME")
 rds_password = os.getenv("RDS_PASSWORD")
+rds_database = os.getenv("RDS_DATABASE")
 database_url = os.getenv("DATABASE_URL")
+
+logger.info("Value fetched for rds_hostname")
+logger.info("Value fetched for rds_username")
+logger.info("Value fetched for rds_password")
+logger.info("Value fetched for rds_database")
+logger.info("Value fetched for database_url")
 
 # Function to apply bcrypt encryption
 def encrypt(password):
@@ -41,23 +71,22 @@ def encrypt(password):
 # Create Database if it does not already exist
 engine = create_engine(database_url)
 if database_exists(engine.url):
-    print("Database already exist!")
+    logger.warning(f"Database \'{rds_database}\' already exist")
 if not database_exists(engine.url):
     create_database(engine.url)
-    print("Created Database!")
-
+    logger.info(f"Created database \'{rds_database}\'")
 
 # Function to establish a connection to the database
 def check_db_connection():
     try:
         db_connection = psycopg2.connect(database_url)
-        print("Connected to the database!")
+        logger.info(f'Successfully connected to the database \'{rds_database}\'')
 
         db_connection.close()
         return True
     
     except Exception as e:
-        print(f"Database connection error: {e}")
+        logger.error(f'Error occurred while trying to connect to the database \'{rds_database}\': {e}')
         return False
 
 # Function to add data from csv file to Account table
@@ -153,15 +182,19 @@ def health_check_api():
     if check_db_connection() and request.method == 'GET':
         if (request.args) or (request.data) or (request.form) or (request.files):
             response = Response(status=400)
+            logger.warning(f"Health check returned status {response.status_code} for a bad request.")
             return response
         else:
             response = Response(status=200)
+            logger.info(f"Health check returned status {response.status_code} for a successful request.")
             return response
     elif not request.method == 'GET':
         response = Response(status=405)
+        logger.warning(f"Health check returned status {response.status_code} for a method not allowed.")
         return response
     else:
         response = Response(status=503)
+        logger.warning(f"Health check returned status {response.status_code} for service unavailable.")
         return response
 
 
