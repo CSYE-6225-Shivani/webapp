@@ -130,7 +130,8 @@ build {
     inline = [
       "sudo groupadd ${var.group}",
       "sudo useradd -s /bin/false -g ${var.group} -d /opt/ ${var.user}",
-      "sudo chown -R ${var.ssh_username}:${var.ssh_username} /opt/"
+      "sudo chown -R ${var.ssh_username}:${var.ssh_username} /opt/",
+      "sudo dpkg -i -E /opt/amazon-cloudwatch-agent.deb"
     ]
   }
 
