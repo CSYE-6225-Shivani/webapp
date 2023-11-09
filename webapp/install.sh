@@ -70,3 +70,8 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Packages installation completed successfully."
+
+wget https://amazoncloudwatch-agent.s3.amazonaws.com/debian/amd64/latest/amazon-cloudwatch-agent.deb
+if [$? -ne 0]; then
+    handle_error "Failed to get amazon-cloudwatch-agent.deb"
+fi
