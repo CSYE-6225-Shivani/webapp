@@ -11,7 +11,11 @@ import os
 from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 from dotenv import load_dotenv
+import logging
 
+# Enable logging for this webapp
+logging.basicConfig(filename="/opt/webapp.log", level=logging.INFO)
+logging.INFO('Testing LOG collection')
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)

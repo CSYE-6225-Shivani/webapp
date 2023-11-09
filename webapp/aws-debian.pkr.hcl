@@ -154,7 +154,7 @@ build {
       "cd /opt/",
       "unzip webapp.zip",
       "cd webapp",
-      "rm -rf __pycache__",
+      "touch webapp.log",
       "mv users.csv /opt/",
       "rm /opt/webapp.zip",
       "mv amazon-cloudwatch-agent.json /opt/",
