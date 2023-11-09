@@ -1,0 +1,69 @@
+name: PR Merge Packer test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy-ami:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest 
+    services:
+        postgres:
+          image: postgres:14
+          env:
+            POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+          ports:
+            - 5432:5432
+          options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+          
+    steps:
+        - name: Checkout repository code
+          uses: actions/checkout@v4
+
+        - name: Set up Python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 3.11
+        
+        - name: Install dependencies
+          run: |
+            cd webapp
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+
+        - name: Move users.csv to /opt
+          run: |
+            cd webapp
+            cp users.csv /opt
+  
+         # Running integration test first
+        - name: Run tests (PostgreSQL)
+          run: |
+            cd webapp
+            export DATABASE_URL=${{ secrets.DATABASE_URL }}
+            python IntegrationTest.py
+
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-west-1
+
+        - name: Build webapp artifacts
+          run: |
+            ls -la
+            cd webapp
+            rm -rf __pycache__
+            cd ..
+            zip -r webapp.zip webapp
+            
+           # Initialize Packer templates
+        - name: Check location of files
+          run: |
+            pwd
+            ls -la
