@@ -517,7 +517,7 @@ def modify_assignment(id):
 @auth.login_required # checks if the user sending data through request is authenticated
 def delete_assignment(id):
     # Increment the metric for this endpoint
-    statsd_client.incr('api.v1.assignments.delete_assignment.unauthorized_calls')
+    statsd_client.incr('api.v1.assignments.delete_assignment.calls')
     try:
         # if database connection is unsuccessful
         if not check_db_connection():
