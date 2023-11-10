@@ -13,6 +13,7 @@ from flask_httpauth import HTTPBasicAuth
 from dotenv import load_dotenv
 import logging
 import json
+from statsd import StatsClient
 
 # Create a custom JSON formatter for logging in json format
 class JsonFormatter(logging.Formatter):
@@ -37,6 +38,9 @@ file_handler.setFormatter(JsonFormatter())
 
 # Add the file handler to the logger
 logger.addHandler(file_handler)
+
+# Initialize StatsD client
+statsd_client = StatsClient(host='localhost', port=8125)
 
 # Create instances of Flask, Bcrypt, and HTTPBasicAuth
 app = Flask(__name__)
@@ -85,7 +89,6 @@ if not database_exists(engine.url):
 
 # Function to establish a connection to the database
 def check_db_connection():
-    
     try:
         db_connection = psycopg2.connect(database_url)
         # log connection info to the log file
@@ -93,7 +96,7 @@ def check_db_connection():
 
         db_connection.close()
         return True
-    
+
     except Exception as e:
         # log connection error to the log file
         logger.error(f'Error occurred while trying to connect to the database \'{rds_database}\': {e}')
@@ -105,7 +108,7 @@ if check_db_connection():
         def LoadData(file_name):
             data = genfromtxt(file_name, delimiter=',', skip_header=1, dtype=str)
             return data.tolist()
-        
+
         # Function to add data from csv file to Account table
         def add_user_data():
             Session = sessionmaker(bind=engine)
@@ -206,6 +209,8 @@ def set_response_headers(response):
 # healthz endpoint configuration - checks connection of the webapp with the database
 @app.route('/healthz', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'])
 def health_check_api():
+    # Increment the metric for this endpoint
+    statsd_client.incr('api.healthz.calls')
     # if connection to database is successful and request is GET
     if check_db_connection() and request.method == 'GET':
         # condition to not allow any arguments with the GET request
@@ -236,6 +241,8 @@ def health_check_api():
 @app.route('/v1/assignments', methods=['GET'])
 @auth.login_required # checks if the user requesting the access is authenticated
 def get_assignments():
+    # Increment the metric for this endpoint
+    statsd_client.incr('api.v1.assignments.get.calls')
     # if database connection is unsuccessful
     if not check_db_connection():
             response = Response(status=503)
@@ -270,12 +277,14 @@ def get_assignments():
 @app.route('/v1/assignments', methods=['POST'])
 @auth.login_required # checks if the user sending data through request is authenticated
 def create_assignments():
+    # Increment the metric for this endpoint
+    statsd_client.incr('api.v1.assignments.post.calls')
     # if database connection is unsuccessful
     if not check_db_connection():
             response = Response(status=503)
             logger.error(f"POST request to /v1/assignments returned status {response.status_code} for service unavailable - Database connection failure")
             return response
-    
+
     # Check if body is json or not
     if request.is_json:
         data = request.get_json() # save request payload to data
@@ -328,7 +337,7 @@ def create_assignments():
         response = Response(status=400)
         logger.warning(f"POST request to /v1/assignments returned status {response.status_code} for a bad request - NO payload except JSON allowed")
         return response
-    
+
     # If there is not content at all, return "400 bad request"
     else:
         response = jsonify({'message' : 'No payload found!'})
@@ -340,12 +349,15 @@ def create_assignments():
 @app.route('/v1/assignments/<id>', methods=['GET'])
 @auth.login_required  # checks if the user sending data through request is authenticated
 def get_one_assignment(id):
+    # Increment the metric for this endpoint
+    statsd_client.incr('api.v1.assignments.get_one_assignment.calls')
     try:
         # if database connection is unsuccessful
         if not check_db_connection():
             response = Response(status=503)
             logger.error(f"GET request to /v1/assignments/{id} returned status {response.status_code} for service unavailable - Database connection failure")
             return response
+
         # try catch block to ensure that id is of type uuid
         try:
             uuid.UUID(id)
@@ -354,11 +366,13 @@ def get_one_assignment(id):
             response.status_code = 400
             logger.warning(f"GET request for /v1/assignments/{id} returned status {response.status_code} for a bad request - format for the 'id' is incorrect: UUID expected")
             return response
+
         # Ensure that there are no args in the request body
         if (request.args) or (request.data) or (request.form) or (request.files):
             response = Response(status=400)
             logger.warning(f"GET request to /v1/assignments/{id} returned status {response.status_code} for a bad request - NO argument allowed")
             return response
+
         assignment = session.query(Assignment).filter_by(id=id).first()
 
         # If assignment id is not present in the table, return "404 Not found"
@@ -383,6 +397,7 @@ def get_one_assignment(id):
             response.status_code = 200
             logger.warning(f"GET request to /v1/assignments/{id} returned status {response.status_code} - fetched data successfully")
             return response
+
     except Exception as e:
         # Log the exception to help with debugging
         print(f"An error occurred: {str(e)}")
@@ -395,6 +410,8 @@ def get_one_assignment(id):
 @app.route('/v1/assignments/<id>', methods=['PUT'])
 @auth.login_required # checks if the user sending data through request is authenticated
 def modify_assignment(id):
+    # Increment the metric for this endpoint
+    statsd_client.incr('api.v1.assignments.modify_assignment.calls')
     try:
         # if database connection is unsuccessful
         if not check_db_connection():
@@ -422,7 +439,7 @@ def modify_assignment(id):
         get_user = auth.current_user() # get the email of the person sending the PUT request
         user_details = session.query(Account).filter_by(email=get_user).first() # get the details of the person sending PUT request from get_user
         user = user_details.id # get user id of the person sending the PUT request
-        # condition to check if the person sending the PUT request is the owner of the assignment 
+        # condition to check if the person sending the PUT request is the owner of the assignment
         if owner == user:
             # Check if body is json or not
             if request.is_json:
@@ -448,7 +465,7 @@ def modify_assignment(id):
                     response.status_code = 400
                     logger.warning(f"PUT request to /v1/assignments/{id} returned status {response.status_code} for a bad request - value for \'num_of_attempts\' must be between 1 and 3 inclusively")
                     return response
-                
+
                 # Overwriting data to existing entry
                 assignment.name = data['name']
                 assignment.points = data['points']
@@ -457,7 +474,7 @@ def modify_assignment(id):
 
                 # update database
                 session.commit()
-                
+
                 # response body of the request
                 response_data = {
                 'name': assignment.name,
@@ -481,7 +498,7 @@ def modify_assignment(id):
                 response.status_code = 400
                 logger.warning(f"PUT request to /v1/assignments/{id} returned status {response.status_code} for a bad request - no payload found")
                 return response
-            
+
         # If user is not the owner of the assignment, return "403 Forbidden"
         else:
             response = jsonify({'message' : 'User forbidden!'})
@@ -494,11 +511,13 @@ def modify_assignment(id):
         logger.error(f"PUT request to /v1/assignments/{id} returned status {response.status_code} - Not implemented: {str(e)}")
         return response
 
-# /v1/assignments/<id> endpoint configuration for DELETE request - Allow to delete assignment based on its id only if 
+# /v1/assignments/<id> endpoint configuration for DELETE request - Allow to delete assignment based on its id only if
 # the owner of that assignment is the one modifying it
 @app.route('/v1/assignments/<id>', methods=['DELETE'])
 @auth.login_required # checks if the user sending data through request is authenticated
 def delete_assignment(id):
+    # Increment the metric for this endpoint
+    statsd_client.incr('api.v1.assignments.delete_assignment.unauthorized_calls')
     try:
         # if database connection is unsuccessful
         if not check_db_connection():
@@ -513,7 +532,7 @@ def delete_assignment(id):
             response.status_code = 400
             logger.warning(f"DELETE request for /v1/assignments/{id} returned status {response.status_code} for a bad request - format for the 'id' is incorrect: UUID expected")
             return response
-        
+
         # Get assignment details from database using provided id
         assignment = session.query(Assignment).filter_by(id=id).first()
 
