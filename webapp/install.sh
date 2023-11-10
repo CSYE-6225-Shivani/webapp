@@ -69,6 +69,11 @@ if [ $? -ne 0 ]; then
     handle_error "Failed to install python3-dotenv"
 fi
 
+sudo apt-get install -y python3-statsd
+if [ $? -ne 0 ]; then
+    handle_error "Failed to install python3-statsd"
+fi
+
 echo "Packages installation completed successfully."
 
 cd /opt/
