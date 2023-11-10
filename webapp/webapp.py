@@ -31,7 +31,7 @@ logger = logging.getLogger('webapp')
 logger.setLevel(logging.INFO)
 
 # Create a file handler and set the log level
-file_handler = logging.FileHandler("C:\\Users\\shiva\\Shivani\\webapp.log")
+file_handler = logging.FileHandler("/opt/webapp.log")
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(JsonFormatter())
 
