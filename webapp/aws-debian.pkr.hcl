@@ -158,9 +158,9 @@ build {
     ]
     inline = [
       "cd /opt/",
+      "touch webapp.log",
       "unzip webapp.zip",
       "cd webapp",
-      "rm -rf __pycache__",
       "mv users.csv /opt/",
       "rm /opt/webapp.zip",
       "mv amazon-cloudwatch-agent.json /opt/",
