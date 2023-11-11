@@ -76,6 +76,7 @@ fi
 
 echo "Packages installation completed successfully."
 
+# Install aws cloudwatch agent
 cd /opt/
 wget https://amazoncloudwatch-agent.s3.amazonaws.com/debian/amd64/latest/amazon-cloudwatch-agent.deb
 if [$? -ne 0]; then
