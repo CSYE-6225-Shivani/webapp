@@ -111,7 +111,7 @@ build {
     "source.amazon-ebs.csye6225-debian12",
   ]
 
-# Run install.sh as a root user to set up runner with dependencies
+  # Run install.sh as a root user to set up runner with dependencies
   provisioner "shell" {
     environment_vars = [
       "DEBIAN_FRONTEND=noninteractive",
@@ -123,8 +123,8 @@ build {
     execute_command = "sudo -E -S sh '{{.Path}}'"
   }
 
-# Create custom user and group, change ownership of /opt, and 
-# install the package for amazon-cloudwatch-agent
+  # Create custom user and group, change ownership of /opt, and 
+  # install the package for amazon-cloudwatch-agent
   provisioner "shell" {
     environment_vars = [
       "DEBIAN_FRONTEND=noninteractive",
@@ -138,19 +138,19 @@ build {
     ]
   }
 
-# Get webapp.zip from current directory on the github runner and move to /opt/ folder
+  # Get webapp.zip from current directory on the github runner and move to /opt/ folder
   provisioner "file" {
     source      = "webapp.zip"
     destination = "/opt/"
   }
 
-# Get webapp.service from current directory on the github runner and move to /tmp/ folder 
+  # Get webapp.service from current directory on the github runner and move to /tmp/ folder 
   provisioner "file" {
     source      = "webapp.service"
     destination = "/tmp/"
   }
 
-# Unzip file, remove unwanted files and move files and folders where needed
+  # Unzip file, remove unwanted files and move files and folders where needed
   provisioner "shell" {
     environment_vars = [
       "DEBIAN_FRONTEND=noninteractive",
