@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 import logging
 import json
 from statsd import StatsClient
+from datetime import datetime
 
 # Create a custom JSON formatter for logging in json format
 class JsonFormatter(logging.Formatter):
@@ -39,7 +40,7 @@ file_handler.setFormatter(JsonFormatter())
 # Add the file handler to the logger
 logger.addHandler(file_handler)
 
-# Initialize StatsD client
+# Initialize StatsD client for cloudwatch metrics
 statsd_client = StatsClient(host='localhost', port=8125)
 
 # Create instances of Flask, Bcrypt, and HTTPBasicAuth
@@ -92,7 +93,7 @@ def check_db_connection():
     try:
         db_connection = psycopg2.connect(database_url)
         # log connection info to the log file
-        logger.info(f'Successfully connected to the database \'{rds_database}\'')
+        #logger.info(f'Successfully connected to the database \'{rds_database}\'')
 
         db_connection.close()
         return True
@@ -182,6 +183,19 @@ if check_db_connection():
             __table_args__ = (CheckConstraint('points >= 1 AND points <= 100', name='check_points_range'),
                               CheckConstraint('num_of_attempts >= 1 AND num_of_attempts <=3', name='check_num_of_attempts'),
             )
+        
+        class Submission(Base):
+            __tablename__ = 'Submission'
+
+            id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+            assignment_id = Column(UUID(as_uuid=True), ForeignKey('Assignment.id')) # foreign key to build a relationship between Assignment and Submission
+            account_id = Column(UUID(as_uuid=True), ForeignKey('Account.id')) # foreign key to build a relationship between Account and Submission
+            submission_url = Column(String, nullable=False)
+            submission_date = Column(TIMESTAMP(), server_default=func.now())
+            submission_updated = Column(TIMESTAMP(), server_default=func.now())
+
+            submission_assignment = relationship('Assignment', backref='assignment_submissions', foreign_keys=[assignment_id])
+            submission_account = relationship('Account', backref='account_submissions', foreign_keys=[account_id])
 
 
         # Create all schemas
@@ -570,6 +584,113 @@ def delete_assignment(id):
         response = Response(status=501)
         logger.error(f"DELETE request to /v1/assignments/{id} returned status {response.status_code} - Not implemented: {str(e)}")
         return response
+
+# /v1/assignments/<id>/submission endpoint configuration for POST request - Allow to submit assignment to users based on deadline and number of allowed attempts
+@app.route('/v1/assignments/<id>/submission', methods=['POST'])
+@auth.login_required # checks if the user sending data through request is authenticated
+def submit_assignment(id):
+    # Increment the metric for this endpoint
+    statsd_client.incr('api.v1.assignments.submit_assignment.calls')
+    try:
+        # if database connection is unsuccessful
+        if not check_db_connection():
+            print("connection is not fine")
+            response = Response(status=503)
+            logger.error(f"POST request to /v1/assignments/{id}/submission returned status {response.status_code} for service unavailable - Database connection failure")
+            return response
+        
+        # try catch block to ensure that id is of type uuid
+        try:
+            uuid.UUID(id)
+            print("uuid check done")
+        except ValueError:
+            response = jsonify({'message' : 'Invalid UUID format for id'})
+            response.status_code = 400
+            logger.warning(f"POST request for /v1/assignments/{id}/submission returned status {response.status_code} for a bad request - format for the 'id' is incorrect: UUID expected")
+            return response
+        
+        # query 'Assignment' table to get details of assignment for which submission is being done like deadline and number of attempts
+        # query 'Account' table to get information of the user making the request
+        assignment = session.query(Assignment).filter_by(id=id).first()
+        user_email = auth.current_user()
+        user = session.query(Account).filter_by(email=user_email).first()
+
+        # If assignment id is not present in the table, return "404 Not found"
+        if not assignment:
+            response = jsonify({'message' : 'No Assignment found!'})
+            response.status_code = 404
+            logger.warning(f"POST request to /v1/assignments/{id}/submission returned status {response.status_code} - NO assignment found with specified id")
+            return response
+        
+        # If the assignment id is valid and body is json then enters this condition
+        if request.is_json:
+            if assignment:
+                data = request.get_json() # save request payload to data
+                deadline = assignment.deadline # get deadline of the assignment for which submission is in progress
+                num_of_attempts = assignment.num_of_attempts # get number of attempts allowed for the assignment for which submission is in progress
+                current_timestamp = datetime.now() # get current timestamp
+                # get count of the submission ids with same assignment id and account id
+                submission_count = session.query(func.count(Submission.id)).filter_by(account_id=user.id, assignment_id=id).scalar()
+
+                # if the deadline is in past, then return 403 forbidden response
+                if deadline < current_timestamp:
+                    print("deadline < curr")
+                    response = jsonify({'error' : 'This assignment is no longer accepting submissions.'})
+                    response.status_code = 403
+                    logger.error(f"POST request to /v1/assignments/{id}/submission returned status {response.status_code} - rejected for assignment \'{assignment.name}\'. The deadline has passed")
+                    return response
+                
+                # if the submission has been submitted as many times as allowed attempts for the assignment, and a new attempt is made, then return
+                # 403 forbidden response
+                if submission_count >= num_of_attempts:
+                    print("submission_count >= num_of_attempts")
+                    response = jsonify({'error' : 'The number of attempts cannot be more than allowed attempts for the assignment.'})
+                    response.status_code = 403
+                    logger.error(f"POST request to v1/assignments/{id}/submission returned status {response.status_code} - rejected for assignment \'{assignment.name}\'. The number of attempts have been exhausted!")
+                    return response
+                
+                # if everything looks good, create a new submission record and add it to the database
+                else:
+                    print("Creating new submission")
+                    new_submission = Submission(assignment_id=assignment.id, account_id=user.id, submission_url=data['submission_url'])
+                    print("new_submission=", new_submission)
+                    session.add(new_submission)
+                    session.commit()
+                    # defining response body after data has been added to the database
+                    response_data = {
+                        'id': str(new_submission.id),
+                        'assignment_id' : assignment.id,
+                        'submission_url' : new_submission.submission_url,
+                        'submission_date' : new_submission.submission_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+                        'submission_updated' : new_submission.submission_updated.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+                    }
+
+                    response = jsonify(response_data) # change response body to json format
+                    response.status_code = 201
+                    logger.info(f"POST request to v1/assignments/{id}/submission returned status {response.status_code} - assignment \'{assignment.name}\' submission successful for user \'{user.id}\'")
+                    return response
+                
+        # if the payload is not json, then return 400 bad request response
+        elif (request.args) or (request.data) or (request.form) or (request.files):
+            print("entered elif case")
+            response = jsonify({'message' : 'Payload must be json.'})
+            response = Response(status=400)
+            logger.warning(f"POST request to /v1/assignments/{id}/submission returned status {response.status_code} for a bad request - NO payload except JSON allowed")
+            return response
+        # if there is no payload at all, return 400 bad request response
+        else:
+            print("Entered else case")
+            response = jsonify({'message' : 'No payload found!'})
+            response.status_code = 400
+            logger.warning(f"POST request to /v1/assignments/{id}/submission returned status {response.status_code} for a bad request - no payload found")
+            return response
+
+    except Exception as e:
+        # Log the exception to help with debugging
+        response = Response(status=501)
+        logger.error(f"POST request to /v1/assignments/{id}/submission returned status {response.status_code} - Not implemented: {str(e)}")
+        return response
+
 
 # function to authenticate user based on their credentials
 @auth.verify_password
