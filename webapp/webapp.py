@@ -665,7 +665,7 @@ def submit_assignment(id):
                         "assignment_name" : f"{assignment.name}",
                         "user_email" : f"{user_email}",
                         "submission_url" : f"{new_submission.submission_url}",
-                        "attempt" : f"{submission_count}"
+                        "attempt" : f"{submission_count}/{num_of_attempts}"
                     }
                     sns_client.publish(
                         TopicArn=sns_topic_arn,
