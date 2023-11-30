@@ -76,6 +76,11 @@ fi
 
 echo "Packages installation completed successfully."
 
+sudo apt-get install -y python3-boto3
+if [ $? -ne 0 ]; then
+    handle_error "Failed to install python3-boto3"
+fi
+
 # Install aws cloudwatch agent
 cd /opt/
 wget https://amazoncloudwatch-agent.s3.amazonaws.com/debian/amd64/latest/amazon-cloudwatch-agent.deb

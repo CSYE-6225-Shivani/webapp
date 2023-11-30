@@ -15,6 +15,7 @@ import logging
 import json
 from statsd import StatsClient
 from datetime import datetime
+import boto3
 
 # Create a custom JSON formatter for logging in json format
 class JsonFormatter(logging.Formatter):
@@ -43,6 +44,9 @@ logger.addHandler(file_handler)
 # Initialize StatsD client for cloudwatch metrics
 statsd_client = StatsClient(host='localhost', port=8125)
 
+# Create an instance of SNS client using boto3
+sns_client = boto3.client('sns')
+
 # Create instances of Flask, Bcrypt, and HTTPBasicAuth
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -65,6 +69,7 @@ rds_username = os.getenv("RDS_USERNAME")
 rds_password = os.getenv("RDS_PASSWORD")
 rds_database = os.getenv("RDS_DATABASE")
 database_url = os.getenv("DATABASE_URL")
+sns_topic_arn = os.getenv("SNS_TOPIC_ARN")
 
 # Log info level log messages to the log file
 logger.info("Value fetched for rds_hostname")
@@ -602,7 +607,6 @@ def submit_assignment(id):
         # try catch block to ensure that id is of type uuid
         try:
             uuid.UUID(id)
-            print("uuid check done")
         except ValueError:
             response = jsonify({'message' : 'Invalid UUID format for id'})
             response.status_code = 400
@@ -634,28 +638,34 @@ def submit_assignment(id):
 
                 # if the deadline is in past, then return 403 forbidden response
                 if deadline < current_timestamp:
-                    print("deadline < curr")
                     response = jsonify({'error' : 'This assignment is no longer accepting submissions.'})
                     response.status_code = 403
-                    logger.error(f"POST request to /v1/assignments/{id}/submission returned status {response.status_code} - rejected for assignment \'{assignment.name}\'. The deadline has passed")
+                    logger.error(f"POST request to /v1/assignments/{id}/submission returned status {response.status_code} - rejected for \'{assignment.name}\'. The deadline has passed")
                     return response
                 
                 # if the submission has been submitted as many times as allowed attempts for the assignment, and a new attempt is made, then return
                 # 403 forbidden response
                 if submission_count >= num_of_attempts:
-                    print("submission_count >= num_of_attempts")
                     response = jsonify({'error' : 'The number of attempts cannot be more than allowed attempts for the assignment.'})
                     response.status_code = 403
-                    logger.error(f"POST request to v1/assignments/{id}/submission returned status {response.status_code} - rejected for assignment \'{assignment.name}\'. The number of attempts have been exhausted!")
+                    logger.error(f"POST request to v1/assignments/{id}/submission returned status {response.status_code} - rejected for \'{assignment.name}\'. The number of attempts have been exhausted!")
                     return response
                 
                 # if everything looks good, create a new submission record and add it to the database
                 else:
-                    print("Creating new submission")
                     new_submission = Submission(assignment_id=assignment.id, account_id=user.id, submission_url=data['submission_url'])
                     print("new_submission=", new_submission)
                     session.add(new_submission)
                     session.commit()
+
+                    # send or publish a message to SNS
+                    sns_client.publish(
+                        TopicArn=sns_topic_arn,
+                        Message=f"New submission for {assignment.name} by user with account_id {user.id}",
+                        Subject="New Submission Notification"
+                    )
+                    logger.info(f"Published a message to SNS topic with arn {sns_topic_arn} for submission posted by user {user.id} for {assignment.name}")
+
                     # defining response body after data has been added to the database
                     response_data = {
                         'id': str(new_submission.id),
@@ -667,19 +677,17 @@ def submit_assignment(id):
 
                     response = jsonify(response_data) # change response body to json format
                     response.status_code = 201
-                    logger.info(f"POST request to v1/assignments/{id}/submission returned status {response.status_code} - assignment \'{assignment.name}\' submission successful for user \'{user.id}\'")
+                    logger.info(f"POST request to v1/assignments/{id}/submission returned status {response.status_code} - \'{assignment.name}\' submission successful for user \'{user.id}\'")
                     return response
                 
         # if the payload is not json, then return 400 bad request response
         elif (request.args) or (request.data) or (request.form) or (request.files):
-            print("entered elif case")
             response = jsonify({'message' : 'Payload must be json.'})
             response = Response(status=400)
             logger.warning(f"POST request to /v1/assignments/{id}/submission returned status {response.status_code} for a bad request - NO payload except JSON allowed")
             return response
         # if there is no payload at all, return 400 bad request response
         else:
-            print("Entered else case")
             response = jsonify({'message' : 'No payload found!'})
             response.status_code = 400
             logger.warning(f"POST request to /v1/assignments/{id}/submission returned status {response.status_code} for a bad request - no payload found")
