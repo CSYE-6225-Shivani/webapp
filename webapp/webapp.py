@@ -660,10 +660,18 @@ def submit_assignment(id):
                     # Create an instance of SNS client using boto3
                     sns_client = boto3.client('sns', region_name=region)
                     # send or publish a message to SNS
+                    sns_message = {
+                        "submission_id" : f"{new_submission.id}",
+                        "assignment_name" : f"{assignment.name}",
+                        "user_email" : f"{user_email}",
+                        "submission_url" : f"{new_submission.submission_url}"
+                        "attempt" : f"{submission_count}"
+                    }
                     sns_client.publish(
                         TopicArn=sns_topic_arn,
-                        Message=f"New submission for {assignment.name} by user with account_id {user.id}",
+                        Message=json.dumps(sns_message),
                         Subject="New Submission Notification"
+                        MessageStructure="json",
                     )
                     logger.info(f"Published a message to SNS topic with arn {sns_topic_arn} for submission posted by user {user.id} for {assignment.name}")
 
