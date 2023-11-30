@@ -671,7 +671,6 @@ def submit_assignment(id):
                         TopicArn=sns_topic_arn,
                         Message=json.dumps(sns_message),
                         Subject="New Submission Notification",
-                        MessageStructure="json",
                     )
                     logger.info(f"Published a message to SNS topic with arn {sns_topic_arn} for submission posted by user {user.id} for {assignment.name}")
 
