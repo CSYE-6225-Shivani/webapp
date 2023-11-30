@@ -47,4 +47,5 @@ jobs:
             cd webapp
             ls -la
             export DATABASE_URL=${{ secrets.DATABASE_URL }}
+            export REGION=${{vars.REGION}}
             python IntegrationTest.py

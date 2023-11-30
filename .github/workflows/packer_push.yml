@@ -45,6 +45,7 @@ jobs:
           run: |
             cd webapp
             export DATABASE_URL=${{ secrets.DATABASE_URL }}
+            export REGION=${{vars.REGION}}
             python IntegrationTest.py
 
         - name: Configure AWS Credentials
@@ -52,7 +53,7 @@ jobs:
           with:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-west-1
+            aws-region: ${{vars.region}}
 
         - name: Build webapp artifacts
           run: |
