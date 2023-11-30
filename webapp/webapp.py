@@ -660,12 +660,13 @@ def submit_assignment(id):
                     # Create an instance of SNS client using boto3
                     sns_client = boto3.client('sns', region_name=region)
                     # send or publish a message to SNS
+                    count = submission_count + 1
                     sns_message = {
                         "submission_id" : f"{new_submission.id}",
                         "assignment_name" : f"{assignment.name}",
                         "user_email" : f"{user_email}",
                         "submission_url" : f"{new_submission.submission_url}",
-                        "attempt" : f"{submission_count}/{num_of_attempts}"
+                        "attempt" : f"{count}/{num_of_attempts}"
                     }
                     sns_client.publish(
                         TopicArn=sns_topic_arn,
