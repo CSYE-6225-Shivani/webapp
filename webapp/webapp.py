@@ -44,9 +44,6 @@ logger.addHandler(file_handler)
 # Initialize StatsD client for cloudwatch metrics
 statsd_client = StatsClient(host='localhost', port=8125)
 
-# Create an instance of SNS client using boto3
-sns_client = boto3.client('sns')
-
 # Create instances of Flask, Bcrypt, and HTTPBasicAuth
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -70,6 +67,7 @@ rds_password = os.getenv("RDS_PASSWORD")
 rds_database = os.getenv("RDS_DATABASE")
 database_url = os.getenv("DATABASE_URL")
 sns_topic_arn = os.getenv("SNS_TOPIC_ARN")
+region = os.getenv("REGION")
 
 # Log info level log messages to the log file
 logger.info("Value fetched for rds_hostname")
@@ -77,6 +75,9 @@ logger.info("Value fetched for rds_username")
 logger.info("Value fetched for rds_password")
 logger.info("Value fetched for rds_database")
 logger.info("Value fetched for database_url")
+
+# Create an instance of SNS client using boto3
+sns_client = boto3.client('sns', region_name=region)
 
 # Function to apply bcrypt encryption to all the user passwords in the database
 def encrypt(password):
