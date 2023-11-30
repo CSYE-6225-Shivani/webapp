@@ -76,8 +76,6 @@ logger.info("Value fetched for rds_password")
 logger.info("Value fetched for rds_database")
 logger.info("Value fetched for database_url")
 
-# Create an instance of SNS client using boto3
-sns_client = boto3.client('sns', region_name='us-west-1')
 
 # Function to apply bcrypt encryption to all the user passwords in the database
 def encrypt(password):
@@ -659,6 +657,8 @@ def submit_assignment(id):
                     session.add(new_submission)
                     session.commit()
 
+                    # Create an instance of SNS client using boto3
+                    sns_client = boto3.client('sns', region_name=region)
                     # send or publish a message to SNS
                     sns_client.publish(
                         TopicArn=sns_topic_arn,
