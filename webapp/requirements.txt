@@ -8,3 +8,4 @@ flask_httpauth
 psycopg2-binary
 python-dotenv
 statsd
+boto3
