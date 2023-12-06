@@ -89,7 +89,7 @@ jobs:
             packer build -var "aws_region=${{ vars.AWS_REGION_PACKER }}" -var "group=${{ vars.GROUP_PACKER }}" -var "user=${{ vars.USER_PACKER }}" -var "source_ami=${{ vars.SOURCE_AMI_PACKER }}" -var "ssh_username=${{ vars.SSH_USERNAME_PACKER }}" -var "subnet_id=${{ vars.SUBNET_ID_PACKER }}" -var "ami_users=${{ vars.AMI_USERS_PACKER }}" -var "instance_type=${{ vars.INSTANCE_TYPE_PACKER }}" -var "volume_size=${{ vars.VOLUME_SIZE_PACKER }}" -var "volume_type=${{ vars.VOLUME_TYPE_PACKER }}" -var "delay_seconds=${{ vars.DELAY_SECONDS_PACKER }}" -var "device_name=${{ vars.DEVICE_NAME_PACKER }}" -var "max_attempts=${{ vars.MAX_ATTEMPTS_PACKER }}" ./aws-debian.pkr.hcl
             # Store the AMI ID in an environment variable for later use
             echo "::set-output name=NEW_AMI_ID::${NEW_AMI_ID}"
-            echo "NEW_AMI_ID::${NEW_AMI_ID}" >> $GITHUB_OUTPUT
+            echo "NEW_AMI_ID=${NEW_AMI_ID}" >> $GITHUB_OUTPUT
   update-launch-template-demo:
     needs: build-and-deploy-ami
     runs-on: ubuntu-latest
@@ -102,8 +102,8 @@ jobs:
           aws-region: ${{vars.region}}
       - name: Update launch template
         run: |
-          NEW_AMI_ID = ${{ needs.build-and-deploy-ami.outputs.NEW_AMI_ID }}
+          NEW_AMI_ID=${{ needs.build-and-deploy-ami.outputs.NEW_AMI_ID }}
           LAUNCH_TEMPLATE_ID=${{ secrets.LAUNCH_TEMPLATE_ID_DEV }}
           VERSION_OUTPUT = $(aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description "New version" --source-version $NEW_AMI_ID)
           VERSION_NUMBER=$(echo $VERSION_OUTPUT | jq -r '.LaunchTemplateVersion.VersionNumber')
-          echo "NEW_VERSION::$VERSION_NUMBER" >> $GITHUB_OUTPUT
+          echo "NEW_VERSION=$VERSION_NUMBER" >> $GITHUB_OUTPUT
