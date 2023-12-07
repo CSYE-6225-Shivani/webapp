@@ -112,4 +112,5 @@ jobs:
           echo $ASG
       - name: Get Launch template ID for ASG
         run: |
-          aws ec2 describe-launch-templates --query 'LaunchTemplates[0].LaunchTemplateId' --output text
+          LAUNCH_TEMPLATE_ID=$(aws ec2 describe-launch-templates --query 'LaunchTemplates[0].LaunchTemplateId' --output text)
+          echo "launch_template_id=$LAUNCH_TEMPLATE_ID" >> "GITHUB_ENV"
