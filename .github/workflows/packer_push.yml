@@ -120,3 +120,19 @@ jobs:
       - name: Update ASG to use the latest launch template version
         run: |
           aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_ID,Version=$LAUNCH_TEMPLATE_VERSION"
+      - name: Refresh instances in ASG
+        run: |
+          aws autoscaling start-instance-refresh --auto-scaling-group-name $ASG
+      - name: Check instance refresh progress
+        run: |
+          ASG_REFRESH_STATUS="Pending"
+
+          while [ "$ASG_REFRESH_STATUS" != "Successful" ] && [ "$ASG_REFRESH_STATUS" != "Failed" ] && [ "$ASG_REFRESH_STATUS" != "Cancelled" ]; do
+            ASG_REFRESH_STATUS=$(aws autoscaling describe-instance-refreshes --auto-scaling-group-name $ASG --query 'InstanceRefreshes[0].Status' --output text)
+      
+            # Print the current status
+            echo "Instance Refresh Status: $ASG_REFRESH_STATUS"
+      
+            # Add a sleep to avoid making too many API calls in a short time
+            sleep 30
+          done
