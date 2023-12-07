@@ -97,7 +97,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEPLOY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEPLOY }}
           aws-region: ${{vars.region}}
-      - name: Get latest AMI
+      - name: Get latest AMI aws cli
         run: |
           # Retrieve the latest AMI
           LATEST_AMI=$(aws ec2 describe-images --filters 'Name=name,Values=csye6225*' --query 'sort_by(Images,&CreationDate)[-1].ImageId' --output text)
