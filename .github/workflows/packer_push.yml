@@ -110,6 +110,6 @@ jobs:
         run: |
           LAUNCH_TEMPLATE_ID=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $asg --query "AutoScalingGroups[].LaunchTemplate.LaunchTemplateId" --output text)
           echo "launch_template_id=$LAUNCH_TEMPLATE_ID" >> "$GITHUB_ENV"
-      # - name: Create new launch template version
-      #   run: |
-      #     aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description latest --source-version 1 --launch-template-data "{\"ImageId\":\"$LATEST_AMI\"}"
+      - name: Create new launch template version
+        run: |
+          aws ec2 create-launch-template-version --launch-template-id $launch_template_id --version-description "Update version" --source-version 1 --launch-template-data "ImageId=$latest_ami"
