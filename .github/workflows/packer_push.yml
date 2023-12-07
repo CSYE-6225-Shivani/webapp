@@ -112,5 +112,4 @@ jobs:
           echo $ASG
       - name: Get Launch template ID for ASG
         run: |
-         aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups[0].LaunchTemplate.LaunchTemplateId' --auto-scaling-group-names $ASG
-          
+          aws ec2 describe-launch-templates --query 'LaunchTemplates[0].LaunchTemplateId' --output text
