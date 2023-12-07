@@ -116,4 +116,4 @@ jobs:
           echo $LAUNCH_TEMPLATE_ID
       - name: Create new launch template version
         run: |
-          aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description latest --source-version 1 --launch-template-data "{\"ImageId\":\"$LATES_AMI\"}"
+          aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description latest --source-version 1 --launch-template-data "{\"ImageId\":\"$LATEST_AMI\"}"
