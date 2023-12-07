@@ -112,5 +112,8 @@ jobs:
           echo $ASG
       - name: Get Launch template ID for ASG
         run: |
-          LAUNCH_TEMPLATE_ID=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names auto-scaling-group-ea4812d --query "AutoScalingGroups[].LaunchTemplate.LaunchTemplateId" --output text)
+          LAUNCH_TEMPLATE_ID=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG --query "AutoScalingGroups[].LaunchTemplate.LaunchTemplateId" --output text)
           echo $LAUNCH_TEMPLATE_ID
+      - name: Create new launch template version
+        run: |
+            aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description "Updated version with new AMI" --source-version $LATEST_AMI
