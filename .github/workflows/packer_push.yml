@@ -117,3 +117,6 @@ jobs:
         run: |
           launch_template_version=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --versions '$Latest' --query 'LaunchTemplateVersions | sort_by(@, &VersionNumber) | [-1].VersionNumber' --output text)
           echo "LAUNCH_TEMPLATE_VERSION=$launch_template_version" >> "$GITHUB_ENV"
+      - name: Update ASG to use the latest launch template version
+        run: |
+          aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_ID,Version=$LAUNCH_TEMPLATE_VERSION"
