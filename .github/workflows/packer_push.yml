@@ -6,85 +6,144 @@ on:
       - main
 
 jobs:
-  build-and-deploy-ami:
-    # if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest 
-    services:
-        postgres:
-          image: postgres:14
-          env:
-            POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-            POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-            POSTGRES_DB: ${{ vars.POSTGRES_DB }}
-          ports:
-            - 5432:5432
-          options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+  # build-and-deploy-ami:
+  #   if: github.event.pull_request.merged == true
+  #   runs-on: ubuntu-latest 
+  #   services:
+  #       postgres:
+  #         image: postgres:14
+  #         env:
+  #           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  #           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  #           POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+  #         ports:
+  #           - 5432:5432
+  #         options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
           
-    steps:
-        - name: Checkout repository code
-          uses: actions/checkout@v4
+  #   steps:
+  #       - name: Checkout repository code
+  #         uses: actions/checkout@v4
 
-        - name: Set up Python
-          uses: actions/setup-python@v2
-          with:
-            python-version: 3.11
+  #       - name: Set up Python
+  #         uses: actions/setup-python@v2
+  #         with:
+  #           python-version: 3.11
         
-        - name: Install dependencies
-          run: |
-            cd webapp
-            python -m pip install --upgrade pip
-            pip install -r requirements.txt
+  #       - name: Install dependencies
+  #         run: |
+  #           cd webapp
+  #           python -m pip install --upgrade pip
+  #           pip install -r requirements.txt
 
-        - name: Move users.csv to /opt
-          run: |
-            cd webapp
-            cp users.csv /opt
+  #       - name: Move users.csv to /opt
+  #         run: |
+  #           cd webapp
+  #           cp users.csv /opt
   
-         # Running integration test first
-        - name: Run tests (PostgreSQL)
-          run: |
-            cd webapp
-            export DATABASE_URL=${{ secrets.DATABASE_URL }}
-            export REGION=${{vars.REGION}}
-            python IntegrationTest.py
+  #        # Running integration test first
+  #       - name: Run tests (PostgreSQL)
+  #         run: |
+  #           cd webapp
+  #           export DATABASE_URL=${{ secrets.DATABASE_URL }}
+  #           export REGION=${{vars.REGION}}
+  #           python IntegrationTest.py
 
-        - name: Configure AWS Credentials
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: ${{vars.region}}
+  #       - name: Configure AWS Credentials
+  #         uses: aws-actions/configure-aws-credentials@v4
+  #         with:
+  #           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #           aws-region: ${{vars.region}}
 
-        - name: Build webapp artifacts
-          run: |
-            ls -la
-            cd webapp
-            rm -rf __pycache__
-            cd ..
-            zip -r webapp.zip webapp
+  #       - name: Build webapp artifacts
+  #         run: |
+  #           ls -la
+  #           cd webapp
+  #           rm -rf __pycache__
+  #           cd ..
+  #           zip -r webapp.zip webapp
             
-           # Initialize Packer templates
-        - name: Check location of files
-          run: |
-            pwd
-            ls -la
+  #          # Initialize Packer templates
+  #       - name: Check location of files
+  #         run: |
+  #           pwd
+  #           ls -la
             
-        - name: Setup Packer
-          uses: hashicorp/setup-packer@main
-          id: setup
-          with:
-            version: "latest"
+  #       - name: Setup Packer
+  #         uses: hashicorp/setup-packer@main
+  #         id: setup
+  #         with:
+  #           version: "latest"
 
-        - name: Check Packer version
-          run: packer version
+  #       - name: Check Packer version
+  #         run: packer version
 
-        - name: Packer init
-          run: |
-            cd webapp
-            packer init ./aws-debian.pkr.hcl
+  #       - name: Packer init
+  #         run: |
+  #           cd webapp
+  #           packer init ./aws-debian.pkr.hcl
 
-        - name: Build AMI
-          run: |
-            mv webapp.zip webapp/
-            cd webapp
-            packer build -var "aws_region=${{ vars.AWS_REGION_PACKER }}" -var "group=${{ vars.GROUP_PACKER }}" -var "user=${{ vars.USER_PACKER }}" -var "source_ami=${{ vars.SOURCE_AMI_PACKER }}" -var "ssh_username=${{ vars.SSH_USERNAME_PACKER }}" -var "subnet_id=${{ vars.SUBNET_ID_PACKER }}" -var "ami_users=${{ vars.AMI_USERS_PACKER }}" -var "instance_type=${{ vars.INSTANCE_TYPE_PACKER }}" -var "volume_size=${{ vars.VOLUME_SIZE_PACKER }}" -var "volume_type=${{ vars.VOLUME_TYPE_PACKER }}" -var "delay_seconds=${{ vars.DELAY_SECONDS_PACKER }}" -var "device_name=${{ vars.DEVICE_NAME_PACKER }}" -var "max_attempts=${{ vars.MAX_ATTEMPTS_PACKER }}" ./aws-debian.pkr.hcl
+  #       - name: Build AMI
+  #         run: |
+  #           mv webapp.zip webapp/
+  #           cd webapp
+  #           packer build -var "aws_region=${{ vars.AWS_REGION_PACKER }}" -var "group=${{ vars.GROUP_PACKER }}" -var "user=${{ vars.USER_PACKER }}" -var "source_ami=${{ vars.SOURCE_AMI_PACKER }}" -var "ssh_username=${{ vars.SSH_USERNAME_PACKER }}" -var "subnet_id=${{ vars.SUBNET_ID_PACKER }}" -var "ami_users=${{ vars.AMI_USERS_PACKER }}" -var "instance_type=${{ vars.INSTANCE_TYPE_PACKER }}" -var "volume_size=${{ vars.VOLUME_SIZE_PACKER }}" -var "volume_type=${{ vars.VOLUME_TYPE_PACKER }}" -var "delay_seconds=${{ vars.DELAY_SECONDS_PACKER }}" -var "device_name=${{ vars.DEVICE_NAME_PACKER }}" -var "max_attempts=${{ vars.MAX_ATTEMPTS_PACKER }}" ./aws-debian.pkr.hcl
+  update-launch-template-demo:
+    # needs: build-and-deploy-ami
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure Continuous Deployment AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEPLOY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEPLOY }}
+          aws-region: ${{vars.region}}
+      - name: Get latest AMI aws cli
+        run: |
+          # Retrieve the latest AMI
+          latest_ami=$(aws ec2 describe-images --filters 'Name=name,Values=csye6225*' --query 'sort_by(Images,&CreationDate)[-1].ImageId' --output text)
+          echo "LATEST_AMI=$latest_ami" >> "$GITHUB_ENV"
+      - name: Get current ASG
+        run: |
+          asg=$(aws autoscaling describe-auto-scaling-groups --query AutoScalingGroups[].AutoScalingGroupName --filters "Name=tag:Name,Values=csye6225-asg-ec2" --output text)
+          echo "ASG=$asg" >> "$GITHUB_ENV"
+      - name: Get Launch template ID for ASG
+        run: |
+          launch_template_id=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG --query "AutoScalingGroups[].LaunchTemplate.LaunchTemplateId" --output text)
+          echo "LAUNCH_TEMPLATE_ID=$launch_template_id" >> "$GITHUB_ENV"
+      - name: Create new launch template version
+        run: |
+          aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description "Update version" --source-version 1 --launch-template-data "ImageId=$LATEST_AMI"
+      - name: Get latest launch template version
+        run: |
+          launch_template_version=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --versions '$Latest' --query 'LaunchTemplateVersions | sort_by(@, &VersionNumber) | [-1].VersionNumber' --output text)
+          echo "LAUNCH_TEMPLATE_VERSION=$launch_template_version" >> "$GITHUB_ENV"
+      - name: Update ASG to use the latest launch template version
+        run: |
+          aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_ID,Version=$LAUNCH_TEMPLATE_VERSION"
+      - name: Refresh instances in ASG
+        run: |
+          aws autoscaling start-instance-refresh --auto-scaling-group-name $ASG
+      - name: Check instance refresh progress
+        run: |
+          ASG_REFRESH_STATUS="Pending"
+
+          while [ "$ASG_REFRESH_STATUS" != "Successful" ] && [ "$ASG_REFRESH_STATUS" != "Failed" ] && [ "$ASG_REFRESH_STATUS" != "Cancelled" ]; do
+            ASG_REFRESH_STATUS=$(aws autoscaling describe-instance-refreshes --auto-scaling-group-name $ASG --query 'InstanceRefreshes[0].Status' --output text)
+      
+            # Print the current status
+            echo "Instance Refresh Status: $ASG_REFRESH_STATUS"
+      
+            # Add a sleep to avoid making too many API calls in a short time
+            sleep 30
+          done
+          # Print the reason for exit
+          if [ "$ASG_REFRESH_STATUS" == "Successful" ]; then
+            echo "Instance refresh completed successfully."
+          elif [ "$ASG_REFRESH_STATUS" == "Failed" ]; then
+            echo "Instance refresh failed."
+          elif [ "$ASG_REFRESH_STATUS" == "Cancelled" ]; then
+            echo "Instance refresh was cancelled."
+          else
+            echo "Unexpected exit status: $ASG_REFRESH_STATUS"
+          fi
