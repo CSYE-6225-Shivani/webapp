@@ -110,3 +110,7 @@ jobs:
         run: |
           ASG=$(aws autoscaling describe-auto-scaling-groups --query AutoScalingGroups[].AutoScalingGroupName --filters "Name=tag:Name,Values=csye6225-asg-ec2" --output text)
           echo $ASG
+      - name: Get Launch template ID for ASG
+        run: |
+          LAUNCH_TEMPLATE_ID=$(aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups[0].LaunchTemplate.LaunchTemplateId' --auto-scaling-group-names $ASG --output json | jq -r '.')
+          echo $LAUNCH_TEMPLATE_ID
