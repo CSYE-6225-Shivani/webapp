@@ -108,9 +108,9 @@ jobs:
           # echo "NEW_VERSION=$VERSION_NUMBER" >> $GITHUB_OUTPUT
       - name: Get current ASG
         run: |
-          ASG=$(aws autoscaling describe-auto-scaling-groups --query AutoScalingGroups[].AutoScalingGroupName --filters "Name=tag:Name,Values=csye6225-asg-ec2" --output text)
+          ASG="$(aws autoscaling describe-auto-scaling-groups --query AutoScalingGroups[].AutoScalingGroupName --filters "Name=tag:Name,Values=csye6225-asg-ec2" --output text)"
           echo $ASG
       - name: Get Launch template ID for ASG
         run: |
-          LAUNCH_TEMPLATE_ID=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[?AutoScalingGroupName=='$ASG'].LaunchTemplate.LaunchTemplateId" --output text)
+          LAUNCH_TEMPLATE_ID=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[?AutoScalingGroupName==$ASG].LaunchTemplate.LaunchTemplateId" --output text)
           echo $LAUNCH_TEMPLATE_ID
