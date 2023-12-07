@@ -112,8 +112,8 @@ jobs:
           echo "LAUNCH_TEMPLATE_ID=$launch_template_id" >> "$GITHUB_ENV"
       - name: Create new launch template version
         run: |
-          aws ec2 create-launch-template-version --launch-template-id $launch_template_id --version-description "Update version" --source-version 1 --launch-template-data "ImageId=$latest_ami"
+          aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description "Update version" --source-version 1 --launch-template-data "ImageId=$LATEST_AMI"
       - name: Get latest launch template version
         run: |
-          launch_template_version=$(aws ec2 describe-launch-template-versions --launch-template-id $launch_template_id --versions '$Latest' --query 'LaunchTemplateVersions | sort_by(@, &VersionNumber) | [-1].VersionNumber' --output text)
+          launch_template_version=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --versions '$Latest' --query 'LaunchTemplateVersions | sort_by(@, &VersionNumber) | [-1].VersionNumber' --output text)
           echo "LAUNCH_TEMPLATE_VERSION=$launch_template_version" >> "$GITHUB_ENV"
