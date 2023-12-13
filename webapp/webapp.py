@@ -256,7 +256,7 @@ def health_check_api():
         return response
 
 # /v1/assignments endpoint configuration for GET request - returns a list of assignments
-@app.route('/v1/assignments', methods=['GET'])
+@app.route('/demo/assignments', methods=['GET'])
 @auth.login_required # checks if the user requesting the access is authenticated
 def get_assignments():
     # Increment the metric for this endpoint
