@@ -1,5 +1,9 @@
 # Cloud-Native Flask API on AWS using IaC
 
+This project exemplifies a backend-focused assignment management system, leveraging cloud technology for scalability and efficiency. Seamlessly executing CRUD operations, it ensures a dynamic and user-friendly experience. The system integrates with Google Cloud Platform (GCP) for secure student submission uploads to cloud storage and sends automated email notifications providing submission status updates to student.
+
+## About this repository
+
 This repository contains code for building a Cloud-native web application, creating an Amazon Machine Image, setting up Amazon CloudWatch logging and metrics, enabling Systemd autorun of the web app on an Amazon EC2 instance, and implementing GitHub Actions workflows for integration testing and CI/CD in production.
 
 ## Use with Related Repositories
@@ -20,7 +24,7 @@ This repository contains code for building a Cloud-native web application, creat
 | **CI/CD**                    | GitHub Actions                                          |
 | **Additional Tools**         | Mailgun, Google Cloud Platform (GCP)                     |
 
-## Read through [webapp](docs/webapp.md) documentation for detailed information on setting up webapp respository
+## Read through [webapp](webapp.md) documentation for detailed information on setting up webapp respository
 
 
 ## Setting up webapp, iac-pulumi, and serverless repositiories
