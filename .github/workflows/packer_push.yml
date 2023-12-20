@@ -1,13 +1,18 @@
+# GitHub Actions Workflow to build and deploy AMI on dev account and then update the ASG with the latest AMI in demo/prod account
+# This workflow demonstrates Continuous Integration, Continuous Delivery, and Continuous Deployment.
 name: PR Merge Packer test
 
+# Trigger the workflow when a pull request raised to be merged with main branch is closed
 on:
   pull_request:
     branches:
       - main
 
 jobs:
+  # This job builds and deploys AMI on dev account and shares the AMI with demo/prod account
   build-and-deploy-ami:
-    # if: github.event.pull_request.merged == true
+    # if the pull request that is closed is also merged
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest 
     services:
         postgres:
@@ -48,6 +53,7 @@ jobs:
             export REGION=${{vars.REGION}}
             python IntegrationTest.py
 
+          # Using AWS credentials for a user with customer managed policy - check README for details
         - name: Configure AWS Credentials
           uses: aws-actions/configure-aws-credentials@v4
           with:
@@ -88,6 +94,8 @@ jobs:
             mv webapp.zip webapp/
             cd webapp
             packer build -var "aws_region=${{ vars.AWS_REGION_PACKER }}" -var "group=${{ vars.GROUP_PACKER }}" -var "user=${{ vars.USER_PACKER }}" -var "source_ami=${{ vars.SOURCE_AMI_PACKER }}" -var "ssh_username=${{ vars.SSH_USERNAME_PACKER }}" -var "subnet_id=${{ vars.SUBNET_ID_PACKER }}" -var "ami_users=${{ vars.AMI_USERS_PACKER }}" -var "instance_type=${{ vars.INSTANCE_TYPE_PACKER }}" -var "volume_size=${{ vars.VOLUME_SIZE_PACKER }}" -var "volume_type=${{ vars.VOLUME_TYPE_PACKER }}" -var "delay_seconds=${{ vars.DELAY_SECONDS_PACKER }}" -var "device_name=${{ vars.DEVICE_NAME_PACKER }}" -var "max_attempts=${{ vars.MAX_ATTEMPTS_PACKER }}" ./aws-debian.pkr.hcl
+  # This job is dependent on the `build-and-deploy-ami` job. It waits until a new AMI is created and then
+  # updates the ASG in the current infrastructure in demo/prod environment to use the newly built AMI - Continuous Deployment
   update-launch-template-demo:
     needs: build-and-deploy-ami
     runs-on: ubuntu-latest

@@ -590,7 +590,7 @@ def delete_assignment(id):
         return response
 
 # /v1/assignments/<id>/submission endpoint configuration for POST request - Allow to submit assignment to users based on deadline and number of allowed attempts
-@app.route('/v2/assignments/<id>/submission', methods=['POST'])
+@app.route('/v1/assignments/<id>/submission', methods=['POST'])
 @auth.login_required # checks if the user sending data through request is authenticated
 def submit_assignment(id):
     # Increment the metric for this endpoint
@@ -718,7 +718,10 @@ def verify_password(username, password):
     elif check_db_connection():
         account = session.query(Account).filter_by(email=username).first()
         if account:
+            logger.error(f"User authentication successful for {account.id}")
             return bcrypt.check_password_hash(account.password, password)
+        elif not account:
+            logger.error(f"User authentication failed for {username}")
     return False
 
 # run application
