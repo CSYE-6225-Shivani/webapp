@@ -5,6 +5,8 @@ name: PR Merge Packer test
 # Trigger the workflow when a pull request raised to be merged with main branch is closed
 on:
   pull_request:
+    types:
+      - closed
     branches:
       - main
 
