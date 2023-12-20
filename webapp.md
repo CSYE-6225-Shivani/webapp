@@ -1,7 +1,7 @@
 ## PYTHON BASED WEBAPP INTEGRATED WITH POSTGRESQL DATABASE
 
 ## Git Forking Workflow
-> [!NOTE]
+> [!WARNING]
 > If organization repository and forked repositories are not set, the github workflow won't work.
 
 Please make sure to create an Organization on your GitHub and create repository in that Organization. Then fork the repo in your personal account.
@@ -60,7 +60,8 @@ Add below to your GitHub Environment variables and secrets:
        2. pull-request-ami-test
 
 ## Important information about IAM
-If IAM is not set up correctly then none of the things in the project will work. 
+> [!IMPORTANT]
+> If IAM is not set up correctly then none of the things in the project will work. 
 
 For the sake of this project, an organization was created in the root account with 2 member accounts - dev and demo. This was done to have separate environments like in industry for development and production.
 
