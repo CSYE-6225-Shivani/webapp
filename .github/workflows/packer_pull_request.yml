@@ -1,3 +1,4 @@
+# GitHub Actions Workflow to check the format of the Packer HCL file used to build AMI
 name: Pull Request Packer test
 
 on:

@@ -1,3 +1,4 @@
+# Integration test to check integration between the webapp and database
 name: Pull Request Integration Test
 
 on:
@@ -11,6 +12,7 @@ jobs:
       services:
         postgres:
           image: postgres:14
+          # Set up postgres database locally on github runner for testing
           env:
             POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}

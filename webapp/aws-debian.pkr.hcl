@@ -14,6 +14,7 @@ variable "aws_region" {
   default = "us-west-1"
 }
 
+# Use this AWS AMI snapshot and build on top of it
 variable "source_ami" {
   type    = string
   default = "ami-071175b60c818694f" # Debian 12 (HVM)
@@ -34,11 +35,13 @@ variable "subnet_id" {
   default = "subnet-0506898af94ad421d"
 }
 
+# Account ids to share AMI with
 variable "ami_users" {
   type    = list(string)
   default = ["359865058304"]
 }
 
+# Regions to share AMI with 
 variable "ami_regions" {
   type    = list(string)
   default = ["us-west-1"]
