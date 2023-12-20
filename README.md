@@ -25,7 +25,7 @@ This repository contains code for building a Cloud-native web application, creat
 
 ## Setting up webapp, iac-pulumi, and serverless repositiories
 1. Clone webapp repository (assuming that it is set up as guided in its [documentation](./webapp.md))
-2. Clone iac-pulumi repository and follow documentation in [pulumi](https://github.com/CSYE-6225-Shivani/iac-pulumi/blob/main/README.md)
+2. Clone iac-pulumi repository and follow documentation in [pulumi.md](https://github.com/CSYE-6225-Shivani/iac-pulumi/blob/main/pulumi.md)
 3. Clone serverless respository and follow instructions in its [serverless.md](https://github.com/CSYE-6225-Shivani/serverless/blob/main/serverless.md)
 
 ## How do these repositories work together:
