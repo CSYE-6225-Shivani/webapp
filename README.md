@@ -23,6 +23,25 @@ This repository contains code for building a Cloud-native web application, creat
 ## Read through [webapp](docs/webapp.md) documentation for detailed information on setting up webapp respository
 
 
-## How does the repositories work together
-1. Clone iac-pulumi repository (assuming that it is set up as guided in its documentation)
-2. Clone serverless respository and follow instructions in its README.md
+## Setting up webapp, iac-pulumi, and serverless repositiories
+1. Clone webapp repository (assuming that it is set up as guided in its [documentation](./webapp.md))
+2. Clone iac-pulumi repository and follow documentation in [pulumi](https://github.com/CSYE-6225-Shivani/iac-pulumi/blob/main/README.md)
+3. Clone serverless respository and follow instructions in its [serverless.md](https://github.com/CSYE-6225-Shivani/serverless/blob/main/serverless.md)
+
+## How do these repositories work together:
+> Clone all three repositories. You just need to have prerequisites for pulumi on your local.
+
+1. Set up everything as explained in [pulumi.md](https://github.com/CSYE-6225-Shivani/iac-pulumi/blob/main/pulumi.md) locally
+2. You need to have following things on your system:
+     - Pulumi
+     - AWS CLI
+3. Go to the folder where serverless repository folder exist and run below command for each package mentioned in its requirements.txt:
+    
+       pip install --target ./serverless/ <package_name>
+4. Once all the packages have been installed, select all the files in the serverless folder and compress them to create a zip file (The name that you give to this file should be passed as an environment variable in pulumi config file with .zip extension)
+
+5. Go to iac-pulumi folder and copy the zip file created in the previous step in this folder
+
+6. Run the `pulumi up` command from your pulumi code folder and it should build your infrastructure (verify that `instance_ami` passed in the pulumi config file is valid)
+
+7. Once the infrastructure is up, if you now push any changes to webapp repository and merge the pull request, GitHub Worflow Action will automatically change AMI used by ASG to the newly built AMI

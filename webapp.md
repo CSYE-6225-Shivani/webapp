@@ -124,18 +124,6 @@ We need 2 pairs of AWS ACCESS KEY ID and AWS SECRET ACCESS KEY:
        3. IAMFullAccess
     - Create AWS ACCESS KEY and SECRET KEY for this user and add as environment secrets as AWS_ACCESS_KEY_ID_DEPLOY and AWS_SECRET_ACCESS_KEY_DEPLOY
 
-## AMI:
-- The workflow creates an AMI with following specifications in AWS dev account:
-        
-      - python3 and webapp dependencies pre-installed
-      - webapp python file pre-installed in /opt/webapp
-      - webapp.service in location /etc/systemd/system which has configuration to boot start application with the instance
-      - cloudwatch agent pre-installed
-      - cloudwatch logging and metric pre-configured (generates logs and metrics related to the app on Amazon CloudWatch)
-
-- This AMI is private and once created in dev, it gets shared with a demo account
-- You can use this AMI to create EC2 instances with specifications mentioned above
-
 - The application supports below endpoints:
 
 
@@ -172,6 +160,17 @@ We need 2 pairs of AWS ACCESS KEY ID and AWS SECRET ACCESS KEY:
 
 ## FOR INFORMATION ONLY
 
+### AMI:
+- The workflow creates an AMI with following specifications in AWS dev account:
+        
+      - python3 and webapp dependencies pre-installed
+      - webapp python file pre-installed in /opt/webapp
+      - webapp.service in location /etc/systemd/system which has configuration to boot start application with the instance
+      - cloudwatch agent pre-installed
+      - cloudwatch logging and metric pre-configured (generates logs and metrics related to the app on Amazon CloudWatch)
+
+- This AMI is private and once created in dev, it gets shared with the demo/prod account
+- You can use this AMI to create EC2 instances with specifications mentioned above
 
 ### UNDERSTANDING EXISTENCE OF EACH FILE
         
@@ -198,6 +197,8 @@ We need 2 pairs of AWS ACCESS KEY ID and AWS SECRET ACCESS KEY:
           5. PUT - /v1/assignments/<id>: Allows to modify an existing assignment based on its id only if the person modifying it is also its owner
 
           6. DELETE - /v1/assignments/<id>: Allows to delete an existing assignment based on its id only if the person attempting to delete it is also its owner
+
+          7. POST - /v1/assignments/<id>/submission: Allows to submit a zip file in json format to an existing assignment
 
 
 * webapp/install.sh:
