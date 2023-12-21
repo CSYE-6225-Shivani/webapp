@@ -5,6 +5,8 @@ This project exemplifies a backend-focused assignment management system, leverag
 ## About this repository
 
 This repository contains code for building a Cloud-native web application, creating an Amazon Machine Image, setting up Amazon CloudWatch logging and metrics, enabling Systemd autorun of the web app on an Amazon EC2 instance, and implementing GitHub Actions workflows for integration testing and CI/CD in production.
+> [!IMPORTANT]
+> Read through [webapp.md](webapp.md) documentation for detailed information on setting up webapp respository
 
 ## Use with Related Repositories
 
@@ -23,9 +25,6 @@ This repository contains code for building a Cloud-native web application, creat
 | **Version Control**          | Git                                                     |
 | **CI/CD**                    | GitHub Actions                                          |
 | **Additional Tools**         | Mailgun, Google Cloud Platform (GCP)                     |
-
-## Read through [webapp](webapp.md) documentation for detailed information on setting up webapp respository
-
 
 ## Setting up webapp, iac-pulumi, and serverless repositiories
 1. Clone webapp repository (assuming that it is set up as guided in its [documentation](./webapp.md))
