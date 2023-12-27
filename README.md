@@ -19,7 +19,7 @@ This repository contains code for building a Cloud-native web application, creat
 |------------------------------|---------------------------------------------------------|
 | **Programming Language**     | Python (Flask)                                           |
 | **Database**                 | PostgreSQL                                              |
-| **Cloud Services**           | AWS (EC2, RDS, VPC, IAM, Route53, CloudWatch, SNS, Lambda, ELB, ASG) |
+| **Cloud Services**           | AWS (EC2, RDS, VPC, IAM, Route53, CloudWatch, SNS, Lambda, ALB, ASG) |
 | **Infrastructure as Code**   | Pulumi                                                  |
 | **Image Creation**           | Packer (Custom AMIs)                                     |
 | **Version Control**          | Git                                                     |
