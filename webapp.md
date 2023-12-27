@@ -172,6 +172,7 @@ We need 2 pairs of AWS ACCESS KEY ID and AWS SECRET ACCESS KEY:
 
 - This AMI is private and once created in dev, it gets shared with the demo/prod account
 - You can use this AMI to create EC2 instances with specifications mentioned above
+- If this repository is used in conjunction with the other two repositories, then you do not have to manually use the AMI on each EC2 instance
 
 ### UNDERSTANDING EXISTENCE OF EACH FILE
         
